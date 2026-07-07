@@ -19,7 +19,7 @@ Claude Code is powerful. LiteLLM is powerful. But switching between your Anthrop
 
 ```bash
 # 1. Install
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/claude-code-gateway-switch/main/quick-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-switch/main/quick-install.sh | bash
 
 # 2. Add your proxy
 ccgs add litellm http://localhost:4000 sk-yourkey
@@ -101,7 +101,7 @@ eval "$(ccgs native --session)"
 ### One-liner (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/claude-code-gateway-switch/main/quick-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-switch/main/quick-install.sh | bash
 ```
 
 Installs to `~/.local/bin/ccgs` and injects the shell function into your `~/.zshrc` or `~/.bashrc`.
@@ -109,7 +109,7 @@ Installs to `~/.local/bin/ccgs` and injects the shell function into your `~/.zsh
 ### Manual
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-code-gateway-switch
+git clone https://github.com/antoinefradin/claude-code-gateway-switch
 cd claude-code-gateway-switch
 bash install.sh
 ```
@@ -227,7 +227,7 @@ See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for solutions to common i
 Contributions welcome! Please open an issue first for significant changes.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-code-gateway-switch
+git clone https://github.com/antoinefradin/claude-code-gateway-switch
 cd claude-code-gateway-switch
 # Run tests
 bash tests/e2e.sh
