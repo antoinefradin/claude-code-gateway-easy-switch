@@ -1,5 +1,9 @@
 # ccgs — Claude Code Gateway Switch
 
+<p align="center">
+  <img src="assets/banner.png" alt="ccgs — Claude Code Gateway Switch" width="800"/>
+</p>
+
 > One command to switch Claude Code between native Anthropic and any LiteLLM / OpenAI-compatible proxy.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
