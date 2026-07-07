@@ -17,21 +17,54 @@ Claude Code is powerful. LiteLLM is powerful. But switching between your Anthrop
 
 ## Quick Start
 
+**1. Install**
+
 ```bash
-# 1. Install
 curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-switch/main/quick-install.sh | bash
+```
 
-# 2. Add your proxy
+**2. Add your proxy**
+
+```bash
 ccgs add litellm http://localhost:4000 sk-yourkey
+```
+```
+[ccgs] Proxy 'litellm' configured.
+  URL:  http://localhost:4000
+  Key:  sk-yourk...
 
-# 3. Switch to proxy
+  Switch to it:          ccgs proxy litellm
+  List models:           ccgs models list litellm
+  Set a default model:   ccgs config
+```
+
+**3. Switch to proxy**
+
+```bash
 ccgs proxy litellm
+```
+```
+[ccgs] Switched to proxy 'litellm'.
+  URL:   http://localhost:4000
+  Key:   sk-yourk...
+  Restart Claude Code to apply.
+```
 
-# 4. Use Claude Code normally — it now routes through your proxy
+**4. Use Claude Code normally — it now routes through your proxy**
+
+```bash
 claude
+```
 
-# 5. Switch back to native when needed
+**5. Switch back to native when needed**
+
+```bash
 ccgs native
+```
+```
+[ccgs] Switched to native Anthropic mode.
+  Proxy settings cleared from settings.json.
+  Restart Claude Code to apply.
 ```
 
 ---
@@ -73,25 +106,104 @@ Switching back with `ccgs native` simply removes those keys.
 
 ### Examples
 
+**Add a proxy**
+
 ```bash
-# Add proxies
 ccgs add litellm http://localhost:4000 sk-mykey
+```
+```
+[ccgs] Proxy 'litellm' configured.
+  URL:  http://localhost:4000
+  Key:  sk-mykey...
+
+  Switch to it:          ccgs proxy litellm
+  List models:           ccgs models list litellm
+  Set a default model:   ccgs config
+```
+
+```bash
 ccgs add openrouter https://openrouter.ai/api sk-or-v1-mykey
 ccgs add internal http://proxy.internal:8080  # no auth key
+```
 
-# Switch
+**Switch**
+
+```bash
 ccgs proxy litellm
-ccgs proxy openrouter
+```
+```
+[ccgs] Switched to proxy 'litellm'.
+  URL:   http://localhost:4000
+  Key:   sk-mykey...
+  Restart Claude Code to apply.
+```
+
+```bash
 ccgs native
+```
+```
+[ccgs] Switched to native Anthropic mode.
+  Proxy settings cleared from settings.json.
+  Restart Claude Code to apply.
+```
 
-# Inspect
+**Inspect**
+
+```bash
 ccgs list
-ccgs status
-ccgs models list litellm
+```
+```
+Configured proxies:
 
-# Session-only (env vars, no settings.json write)
+  litellm                 http://localhost:4000  [ACTIVE]
+    key:   sk-mykey...
+  openrouter              https://openrouter.ai/api
+
+  Active mode: litellm
+
+  Switch:  ccgs native  |  ccgs proxy <name>
+```
+
+```bash
+ccgs status
+```
+```
+ccgs status
+
+  Active mode:             litellm
+  Proxy URL:               http://localhost:4000
+  Auth key:                sk-mykey...
+
+  Config file:             ~/.config/ccgs/config
+  settings.json:           ~/.claude/settings.json
+
+  Current settings.json env block:
+    ANTHROPIC_BASE_URL                  http://localhost:4000
+    ANTHROPIC_AUTH_TOKEN                sk-mykey...
+```
+
+```bash
+ccgs models list litellm
+```
+```
+Models available on 'litellm' (http://localhost:4000):
+
+  MODEL ID                                          CTX IN       CTX OUT
+  -----------------------------------------------------------------------
+  anthropic/claude-3-5-sonnet-20241022              200,000        8,192
+  anthropic/claude-sonnet-4-6                       200,000       64,000
+
+  Total: 2 model(s)
+```
+
+**Session-only (env vars, no settings.json write)**
+
+```bash
 eval "$(ccgs proxy litellm --session)"
 eval "$(ccgs native --session)"
+```
+```
+[ccgs] Session vars applied to current shell.
 ```
 
 ---
