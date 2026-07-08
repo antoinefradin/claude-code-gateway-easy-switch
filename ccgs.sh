@@ -274,14 +274,18 @@ interactive_select() {
     # Usage: interactive_select "<prompt>" opt1 opt2 ...
     # Prints the chosen option to stdout and returns 0 on Enter.
     # Returns 1 if the user cancelled (q / Esc / Ctrl-C).
-    # Returns 2 immediately if stdin/stdout isn't a TTY (caller should fall back).
+    # Returns 2 immediately if not running interactively (caller should
+    # fall back). Checked against stdin/stderr, not stdout: callers always
+    # invoke this as `result=$(interactive_select ...)` to capture the
+    # final answer, which makes fd1 a pipe even in a real terminal — the
+    # menu itself is rendered to stderr, so that's the stream that matters.
     local label="$1"; shift
     _SEL_OPTIONS=("$@")
     _SEL_COUNT=${#_SEL_OPTIONS[@]}
     _SEL_INDEX=0
 
     [[ $_SEL_COUNT -gt 0 ]] || return 1
-    [[ -t 0 && -t 1 ]] || return 2
+    [[ -t 0 && -t 2 ]] || return 2
 
     _SEL_OLD_STTY=$(stty -g 2>/dev/null) || _SEL_OLD_STTY=""
     stty -echo -icanon min 1 time 0 2>/dev/null
@@ -295,7 +299,12 @@ interactive_select() {
     while true; do
         IFS= read -rsn1 key || key=""
         if [[ "$key" == $'\x1b' ]]; then
-            IFS= read -rsn2 -t 0.05 rest || rest=""
+            # bash 3.2's `read -t` only accepts whole seconds, so this can't
+            # be a short fractional timeout. Arrow-key escape sequences
+            # arrive as a single burst, so `read` returns as soon as both
+            # bytes land; a bare Esc press only pays the full 1s wait (q
+            # cancels instantly if that delay matters).
+            IFS= read -rsn2 -t 1 rest || rest=""
             key="$key$rest"
         fi
 
