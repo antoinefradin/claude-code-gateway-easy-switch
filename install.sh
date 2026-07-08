@@ -115,7 +115,7 @@ printf '\n'
 success "Installation complete!"
 printf '\n'
 info "Quick start:"
-info "  ccgs add litellm http://localhost:4000 sk-yourkey"
+info "  ccgs add litellm https://litellm.my-company.com sk-yourkey"
 info "  ccgs proxy litellm"
 info "  ccgs native"
 info "  ccgs help"

@@ -30,11 +30,11 @@ curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-s
 **2. Add your proxy**
 
 ```bash
-ccgs add litellm http://localhost:4000 sk-yourkey
+ccgs add litellm https://litellm.my-company.com sk-yourkey
 ```
-```
+```text
 [ccgs] Proxy 'litellm' configured.
-  URL:  http://localhost:4000
+  URL:  https://litellm.my-company.com
   Key:  sk-yourk...
 
   Switch to it:          ccgs proxy litellm
@@ -47,9 +47,9 @@ ccgs add litellm http://localhost:4000 sk-yourkey
 ```bash
 ccgs proxy litellm
 ```
-```
+```text
 [ccgs] Switched to proxy 'litellm'.
-  URL:   http://localhost:4000
+  URL:   https://litellm.my-company.com
   Key:   sk-yourk...
   Restart Claude Code to apply.
 ```
@@ -65,7 +65,7 @@ claude
 ```bash
 ccgs native
 ```
-```
+```text
 [ccgs] Switched to native Anthropic mode.
   Proxy settings cleared from settings.json.
   Restart Claude Code to apply.
@@ -101,7 +101,8 @@ Switching back with `ccgs native` simply removes those keys.
 | `ccgs proxy <name>` | Switch to a named proxy |
 | `ccgs models list` | List models from the active proxy |
 | `ccgs models list <name>` | List models from a specific proxy |
-| `ccgs add <name> <url> [key]` | Add or update a proxy |
+| `ccgs add <name> <url> [key]` | Add or update a proxy (positional) |
+| `ccgs add <name> --base-url <url> [--token <key>]` | Add or update a proxy (named flags) |
 | `ccgs remove <name>` | Remove a proxy |
 | `ccgs list` | List all configured proxies |
 | `ccgs status` | Show current mode and settings.json state |
@@ -114,11 +115,13 @@ Switching back with `ccgs native` simply removes those keys.
 **Add a proxy**
 
 ```bash
-ccgs add litellm http://localhost:4000 sk-mykey
+ccgs add litellm https://litellm.my-company.com sk-mykey
+# or with named flags:
+ccgs add litellm --base-url https://litellm.my-company.com --token sk-mykey
 ```
-```
+```text
 [ccgs] Proxy 'litellm' configured.
-  URL:  http://localhost:4000
+  URL:  https://litellm.my-company.com
   Key:  sk-mykey...
 
   Switch to it:          ccgs proxy litellm
@@ -136,7 +139,7 @@ ccgs add internal http://proxy.internal:8080  # no auth key
 ```bash
 ccgs proxy litellm
 ```
-```
+```text
 [ccgs] Switched to proxy 'litellm'.
   URL:   https://litellm.my-company.com
   Key:   sk-mykey...
@@ -146,7 +149,7 @@ ccgs proxy litellm
 ```bash
 ccgs native
 ```
-```
+```text
 [ccgs] Switched to native Anthropic mode.
   Proxy settings cleared from settings.json.
   Restart Claude Code to apply.
@@ -157,7 +160,7 @@ ccgs native
 ```bash
 ccgs list
 ```
-```
+```text
 Configured proxies:
 
   litellm                 https://litellm.my-company.com  [ACTIVE]
@@ -172,7 +175,7 @@ Configured proxies:
 ```bash
 ccgs status
 ```
-```
+```text
 ccgs status
 
   Active mode:             litellm
@@ -195,7 +198,7 @@ ccgs status
 ```bash
 ccgs models list litellm
 ```
-```
+```text
 Models available on 'litellm' (https://litellm.my-company.com):
 
   MODEL ID                                          CTX IN       CTX OUT
@@ -213,7 +216,7 @@ Models available on 'litellm' (https://litellm.my-company.com):
 eval "$(ccgs proxy litellm --session)"
 eval "$(ccgs native --session)"
 ```
-```
+```text
 [ccgs] Session vars applied to current shell.
 ```
 
@@ -321,7 +324,7 @@ Quick example:
 ```bash
 pip install litellm
 litellm --model anthropic/claude-sonnet-4-6 --port 4000
-ccgs add litellm http://localhost:4000
+ccgs add litellm https://litellm.my-company.com
 ccgs proxy litellm
 ccgs models list litellm
 ```

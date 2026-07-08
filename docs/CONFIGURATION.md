@@ -4,7 +4,7 @@
 
 `ccgs` stores its configuration at:
 
-```
+```text
 ~/.config/ccgs/config
 ```
 

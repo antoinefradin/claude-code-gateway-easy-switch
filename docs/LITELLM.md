@@ -149,7 +149,7 @@ ccgs add litellm https://litellm.my-company.com sk-mymaster
 LiteLLM supports per-user virtual keys with budget limits. Create them via the LiteLLM UI or API, then:
 
 ```bash
-ccgs add litellm http://my-litellm-server:4000 sk-virtual-key-for-alice
+ccgs add litellm https://litellm.my-company.com sk-virtual-key-for-alice
 ```
 
 ---
