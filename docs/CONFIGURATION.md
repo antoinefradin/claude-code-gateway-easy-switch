@@ -52,7 +52,7 @@ For each proxy named `<NAME>` (uppercase, underscores), three variables are stor
 |---|---|---|---|
 | `CCGS_PROXY_<NAME>_URL` | string | Yes | Base URL of the proxy (must start with `http://` or `https://`) |
 | `CCGS_PROXY_<NAME>_KEY` | string | No | API key / Bearer token. Empty = open proxy (no Authorization header sent) |
-| `CCGS_PROXY_<NAME>_MODEL` | string | No | Default model to set via `ANTHROPIC_MODEL`. Empty = use Claude Code's default |
+| `CCGS_PROXY_<NAME>_MODEL` | string | No | Default model to set via `ANTHROPIC_MODEL`. Empty = use Claude Code's default. Set interactively with `ccgs models set <name>` (recommended) or by editing this file directly via `ccgs config` |
 
 **Proxy name rules:** lowercase, letters/digits/underscores only. Dashes in names are automatically converted to underscores. So `my-proxy` and `my_proxy` both resolve to `CCGS_PROXY_MY_PROXY_*`.
 

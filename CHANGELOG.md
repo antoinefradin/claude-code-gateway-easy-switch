@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented here.
 
+## [0.2.0] — 2026-07-08
+
+### Added
+
+- `ccgs models set [name]` — interactively pick a proxy's default model with the arrow keys (↑/↓ or j/k, Enter to confirm, q/Esc to cancel), fetched live from `/v1/models`
+- Numbered-prompt fallback for `ccgs models set` when stdin/stdout isn't a TTY (scripts, pipes, CI)
+- `ccgs models set` applies immediately to `settings.json` when the target proxy is currently active — no need to re-run `ccgs proxy <name>`
+- A `(clear default — use Claude Code's default)` option to unset a proxy's default model from the same picker
+
+### Changed
+
+- `ccgs add` now points users at `ccgs models set <name>` instead of `ccgs config` for setting a default model
+- Internal: `cmd_models_list` model-fetching logic extracted into reusable `fetch_models_body` / `list_model_ids` helpers
+
 ## [0.1.0] — 2026-07-06
 
 ### Added
