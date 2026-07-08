@@ -25,9 +25,9 @@ The config file is a plain bash-sourceable key=value file. Values are always dou
 # ccgs configuration
 CCGS_ACTIVE="native"
 
-CCGS_PROXY_LITELLM_URL="http://localhost:4000"
-CCGS_PROXY_LITELLM_KEY="sk-mykey"
-CCGS_PROXY_LITELLM_MODEL=""
+CCGS_PROXY_LITELLM_URL="https://litellm.my-company.com"
+CCGS_PROXY_LITELLM_KEY="sk-mymaster"
+CCGS_PROXY_LITELLM_MODEL="claude-sonnet-5"
 
 CCGS_PROXY_OPENROUTER_URL="https://openrouter.ai/api"
 CCGS_PROXY_OPENROUTER_KEY="sk-or-v1-mykey"
@@ -61,10 +61,10 @@ For each proxy named `<NAME>` (uppercase, underscores), three variables are stor
 ```bash
 CCGS_ACTIVE="litellm"
 
-# Local LiteLLM instance
-CCGS_PROXY_LITELLM_URL="http://localhost:4000"
-CCGS_PROXY_LITELLM_KEY="sk-master"
-CCGS_PROXY_LITELLM_MODEL=""
+# Company LiteLLM proxy
+CCGS_PROXY_LITELLM_URL="https://litellm.my-company.com"
+CCGS_PROXY_LITELLM_KEY="sk-mymaster"
+CCGS_PROXY_LITELLM_MODEL="claude-sonnet-5"
 
 # OpenRouter (cost-effective fallback)
 CCGS_PROXY_OPENROUTER_URL="https://openrouter.ai/api"

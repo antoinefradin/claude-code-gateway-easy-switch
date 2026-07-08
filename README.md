@@ -294,9 +294,9 @@ Config is stored at `~/.config/ccgs/config` (XDG-compliant):
 ```bash
 CCGS_ACTIVE="litellm"
 
-CCGS_PROXY_LITELLM_URL="http://localhost:4000"
-CCGS_PROXY_LITELLM_KEY="sk-mykey"
-CCGS_PROXY_LITELLM_MODEL=""
+CCGS_PROXY_LITELLM_URL="https://litellm.my-company.com"
+CCGS_PROXY_LITELLM_KEY="sk-mymaster"
+CCGS_PROXY_LITELLM_MODEL="claude-sonnet-5"
 
 CCGS_PROXY_OPENROUTER_URL="https://openrouter.ai/api"
 CCGS_PROXY_OPENROUTER_KEY="sk-or-v1-..."
