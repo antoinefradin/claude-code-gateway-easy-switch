@@ -110,7 +110,7 @@ When you run `ccgs proxy <name>` or `ccgs native`, ccgs reads and writes `~/.cla
 
 **What ccgs never touches:**
 
-All other top-level keys (`theme`, `effortLevel`, `permissions`, `hooks`, `apiKeyHelper`, etc.) and all other `env` keys (e.g. `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`, `ANTHROPIC_DEFAULT_SONNET_MODEL`) are preserved exactly.
+All other top-level keys (`theme`, `effortLevel`, `permissions`, `hooks`, `apiKeyHelper`, etc.) and all other `env` keys (e.g. `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`) are preserved exactly.
 
 **Backup:** Before every write, ccgs creates a timestamped backup at `~/.claude/backups/settings_YYYYMMDD_HHMMSS.json`. The last 10 backups are kept.
 
@@ -119,23 +119,30 @@ All other top-level keys (`theme`, `effortLevel`, `permissions`, `hooks`, `apiKe
 Before `ccgs proxy litellm`:
 ```json
 {
-  "theme": "dark",
+  "theme": "light-ansi",
   "effortLevel": "high",
   "env": {
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-8",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8",
     "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"
   }
 }
 ```
 
-After `ccgs proxy litellm` (url=`http://localhost:4000`, key=`sk-abc`):
+After `ccgs proxy litellm` (url=`https://litellm.my-company.com`, key=`sk-abc`, model=`claude-sonnet-5`):
 ```json
 {
-  "theme": "dark",
+  "theme": "light-ansi",
   "effortLevel": "high",
   "env": {
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-8",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8",
     "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
-    "ANTHROPIC_BASE_URL": "http://localhost:4000",
-    "ANTHROPIC_AUTH_TOKEN": "sk-abc"
+    "ANTHROPIC_BASE_URL": "https://litellm.my-company.com",
+    "ANTHROPIC_AUTH_TOKEN": "sk-abc",
+    "ANTHROPIC_MODEL": "claude-sonnet-5"
   }
 }
 ```
@@ -143,9 +150,12 @@ After `ccgs proxy litellm` (url=`http://localhost:4000`, key=`sk-abc`):
 After `ccgs native`:
 ```json
 {
-  "theme": "dark",
+  "theme": "light-ansi",
   "effortLevel": "high",
   "env": {
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-8",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8",
     "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"
   }
 }

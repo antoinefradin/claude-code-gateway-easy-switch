@@ -80,13 +80,14 @@ ccgs native
 ```json
 {
   "env": {
-    "ANTHROPIC_BASE_URL": "http://localhost:4000",
-    "ANTHROPIC_AUTH_TOKEN": "sk-yourkey"
+    "ANTHROPIC_BASE_URL": "https://litellm.my-company.com",
+    "ANTHROPIC_AUTH_TOKEN": "sk-yourkey",
+    "ANTHROPIC_MODEL": "claude-sonnet-5"
   }
 }
 ```
 
-Only the four ccgs-managed keys (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`) are ever touched. All other settings — theme, effortLevel, permissions, hooks, custom env vars — pass through completely untouched.
+Only the four ccgs-managed keys (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`) are ever touched. All other settings — theme, effortLevel, permissions, hooks, and any other env vars such as `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`, `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` — pass through completely untouched.
 
 Switching back with `ccgs native` simply removes those keys.
 
@@ -137,7 +138,7 @@ ccgs proxy litellm
 ```
 ```
 [ccgs] Switched to proxy 'litellm'.
-  URL:   http://localhost:4000
+  URL:   https://litellm.my-company.com
   Key:   sk-mykey...
   Restart Claude Code to apply.
 ```
@@ -159,7 +160,7 @@ ccgs list
 ```
 Configured proxies:
 
-  litellm                 http://localhost:4000  [ACTIVE]
+  litellm                 https://litellm.my-company.com  [ACTIVE]
     key:   sk-mykey...
   openrouter              https://openrouter.ai/api
 
@@ -175,29 +176,35 @@ ccgs status
 ccgs status
 
   Active mode:             litellm
-  Proxy URL:               http://localhost:4000
+  Proxy URL:               https://litellm.my-company.com
   Auth key:                sk-mykey...
 
   Config file:             ~/.config/ccgs/config
   settings.json:           ~/.claude/settings.json
 
   Current settings.json env block:
-    ANTHROPIC_BASE_URL                  http://localhost:4000
-    ANTHROPIC_AUTH_TOKEN                sk-mykey...
+    ANTHROPIC_BASE_URL                     https://litellm.my-company.com
+    ANTHROPIC_AUTH_TOKEN                   sk-mykey...
+    ANTHROPIC_DEFAULT_SONNET_MODEL         claude-sonnet-5
+    ANTHROPIC_DEFAULT_HAIKU_MODEL          claude-haiku-4-8
+    ANTHROPIC_DEFAULT_OPUS_MODEL           claude-opus-4-8
+    ANTHROPIC_MODEL                        claude-sonnet-5
+    CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS 1
 ```
 
 ```bash
 ccgs models list litellm
 ```
 ```
-Models available on 'litellm' (http://localhost:4000):
+Models available on 'litellm' (https://litellm.my-company.com):
 
   MODEL ID                                          CTX IN       CTX OUT
   -----------------------------------------------------------------------
-  anthropic/claude-3-5-sonnet-20241022              200,000        8,192
-  anthropic/claude-sonnet-4-6                       200,000       64,000
+  claude-sonnet-5                                   200,000       64,000
+  claude-opus-4-8                                   200,000       32,000
+  claude-haiku-4-8                                  200,000       32,000
 
-  Total: 2 model(s)
+  Total: 3 model(s)
 ```
 
 **Session-only (env vars, no settings.json write)**
