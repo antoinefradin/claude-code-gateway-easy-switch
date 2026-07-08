@@ -38,7 +38,7 @@ litellm --model anthropic/claude-sonnet-4-6 --port 4000
 Then in another terminal:
 
 ```bash
-ccgs add litellm http://localhost:4000
+ccgs add litellm https://litellm.my-company.com
 ccgs proxy litellm
 ccgs models list litellm
 claude  # should work via proxy
@@ -84,7 +84,7 @@ litellm --config litellm_config.yaml --port 4000
 Connect ccgs:
 
 ```bash
-ccgs add litellm http://localhost:4000 sk-mymaster
+ccgs add litellm https://litellm.my-company.com sk-mymaster
 ccgs proxy litellm
 ccgs models list litellm
 ```
@@ -122,7 +122,7 @@ services:
 export ANTHROPIC_API_KEY=sk-ant-...
 export LITELLM_MASTER_KEY=sk-mymaster
 docker compose up -d
-ccgs add litellm http://localhost:4000 sk-mymaster
+ccgs add litellm https://litellm.my-company.com sk-mymaster
 ccgs proxy litellm
 ```
 
@@ -135,13 +135,13 @@ ccgs proxy litellm
 If you don't set a `master_key` in LiteLLM config, the proxy is open:
 
 ```bash
-ccgs add litellm http://localhost:4000   # no key argument
+ccgs add litellm https://litellm.my-company.com   # no key argument
 ```
 
 ### With master key
 
 ```bash
-ccgs add litellm http://localhost:4000 sk-mymaster
+ccgs add litellm https://litellm.my-company.com sk-mymaster
 ```
 
 ### Virtual keys (team use)
@@ -158,7 +158,7 @@ ccgs add litellm http://my-litellm-server:4000 sk-virtual-key-for-alice
 
 ```bash
 # 1. Check proxy is running
-curl http://localhost:4000/health
+curl https://litellm.my-company.com/health
 
 # 2. List available models
 ccgs models list litellm

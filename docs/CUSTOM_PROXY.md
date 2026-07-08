@@ -147,7 +147,7 @@ Note: Ollama models don't support Claude-specific features. Expect degraded Clau
 
 ```bash
 # Set up all proxies
-ccgs add litellm      http://localhost:4000      sk-local
+ccgs add litellm      https://litellm.my-company.com  sk-mymaster
 ccgs add openrouter   https://openrouter.ai/api  sk-or-v1-...
 ccgs add bedrock-gw   http://localhost:4001      sk-bedrock
 

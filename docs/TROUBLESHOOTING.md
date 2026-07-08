@@ -62,7 +62,7 @@ After install, verify: `python3 --version`
 **Fix:**
 ```bash
 # Check if proxy is running
-curl http://localhost:4000/health
+curl https://litellm.my-company.com/health
 
 # If not running, start LiteLLM
 litellm --config config.yaml --port 4000
@@ -84,10 +84,10 @@ ccgs config
 # Look at: CCGS_PROXY_<NAME>_KEY
 
 # Test key directly
-curl -H "Authorization: Bearer sk-yourkey" http://localhost:4000/v1/models
+curl -H "Authorization: Bearer sk-yourkey" https://litellm.my-company.com/v1/models
 
 # If proxy is open (no auth required), re-add without key:
-ccgs add litellm http://localhost:4000
+ccgs add litellm https://litellm.my-company.com
 ```
 
 ---
@@ -122,7 +122,7 @@ type ccgs  # should show "ccgs is a function"
 **Fix:**
 ```bash
 # Check raw response
-curl -H "Authorization: Bearer sk-key" http://localhost:4000/v1/models
+curl -H "Authorization: Bearer sk-key" https://litellm.my-company.com/v1/models
 
 # Add models to your litellm_config.yaml and restart:
 litellm --config litellm_config.yaml --port 4000
