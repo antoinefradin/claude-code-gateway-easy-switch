@@ -163,6 +163,47 @@ After `ccgs native`:
 
 ---
 
+### Verifying with `/status`
+
+Running `/status` inside Claude Code shows the active configuration — useful to confirm a switch took effect without leaving the session.
+
+**Native mode** (no proxy active):
+
+```
+Settings   Status   Config   Usage   Stats
+
+Version:          2.1.204
+Session ID:       11111111-1111-1111-1111-111111111111
+cwd:              /Users/you/Documents/GITHUB/claude-code-gateway-switch
+Login method:     Claude Pro account
+Organization:     you@example.com's Organization
+Email:            you@example.com
+Model:            Default (Sonnet 5 · Efficient for routine tasks)
+IDE:              Connected to VS Code extension version 2.1.204
+MCP servers:      3 need auth, 1 disabled · /mcp
+Setting sources:  User settings
+```
+
+**After `ccgs proxy litellm`** (illustrative — field labels vary by Claude Code version):
+
+```
+Settings   Status   Config   Usage   Stats
+
+Version:          2.1.204
+Session ID:       22222222-2222-2222-2222-222222222222
+cwd:              /Users/you/Documents/GITHUB/claude-code-gateway-switch
+Login method:     API key (ANTHROPIC_AUTH_TOKEN)
+API Base URL:     https://litellm.my-company.com
+Model:            claude-sonnet-5 (via ANTHROPIC_MODEL)
+IDE:              Connected to VS Code extension version 2.1.204
+MCP servers:      3 need auth, 1 disabled · /mcp
+Setting sources:  User settings
+```
+
+The key thing to confirm is that Base URL and Model match your `ccgs config` — the exact "Login method"/"API Base URL" field names will vary by Claude Code version.
+
+---
+
 ## Session Mode vs Persistent Mode
 
 | Mode | Command | Scope | How |
