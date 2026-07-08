@@ -14,7 +14,13 @@ All notable changes to this project will be documented here.
 ### Changed
 
 - `ccgs add` now points users at `ccgs models set <name>` instead of `ccgs config` for setting a default model
+- `ccgs models set` / `models list` with no active proxy now print actionable guidance (`ccgs proxy <name>` / `ccgs list`, or `ccgs add` when nothing is configured) instead of a single terse line
 - Internal: `cmd_models_list` model-fetching logic extracted into reusable `fetch_models_body` / `list_model_ids` helpers
+
+### Fixed
+
+- `ccgs models set` now actually launches the arrow-key picker in a real terminal. It previously always fell back to the numbered prompt because it checked stdout (`-t 1`) for a TTY, but callers capture stdout via `$(...)`; the interactivity check now uses stderr (`-t 2`), where the menu is rendered
+- `ccgs models set` arrow keys no longer error on macOS's stock bash 3.2 — the escape-sequence read used a fractional `read -t 0.05` timeout, which bash 3.2 rejects; changed to a whole-second timeout
 
 ## [0.1.0] — 2026-07-06
 

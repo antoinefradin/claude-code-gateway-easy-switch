@@ -91,6 +91,19 @@ Only the four ccgs-managed keys (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `
 
 Switching back with `ccgs native` simply removes those keys.
 
+### What changes where
+
+`ccgs` stores your proxies in its own config at `~/.config/ccgs/config` (the `CCGS_*` variables) and projects them into `~/.claude/settings.json` (the `ANTHROPIC_*` keys Claude Code reads) when you activate a proxy. The mapping is one-to-one:
+
+| `~/.config/ccgs/config` | → `~/.claude/settings.json` (`env`) | Set by |
+|---|---|---|
+| `CCGS_PROXY_<NAME>_URL` | `ANTHROPIC_BASE_URL` | `ccgs add`, applied by `ccgs proxy <name>` |
+| `CCGS_PROXY_<NAME>_KEY` | `ANTHROPIC_AUTH_TOKEN` | `ccgs add`, applied by `ccgs proxy <name>` |
+| `CCGS_PROXY_<NAME>_MODEL` | `ANTHROPIC_MODEL` | **`ccgs models set <name>`** (or `ccgs config`), applied by `ccgs proxy <name>` |
+| `CCGS_ACTIVE` | *(internal — never written to settings.json)* | `ccgs proxy` / `ccgs native` |
+
+Empty `KEY` or `MODEL` values are omitted from `settings.json` entirely (open proxy / Claude Code's default model). `ANTHROPIC_API_KEY` is never set — only cleared on `ccgs native` so a stale key can't shadow the proxy token. Running `ccgs models set <name>` on the **currently active** proxy rewrites `ANTHROPIC_MODEL` in `settings.json` immediately; otherwise it just updates the config until the next `ccgs proxy <name>`. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md#settingsjson-integration) for full before/after examples.
+
 ---
 
 ## Command Reference
