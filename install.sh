@@ -12,7 +12,7 @@ CHECK_PATH=1
 
 # Locate the ccgs script (same dir as this install.sh, or CCGS_REPO_DIR override)
 SCRIPT_DIR="${CCGS_REPO_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-CCGS_SCRIPT="$SCRIPT_DIR/ccgs"
+CCGS_SCRIPT="$SCRIPT_DIR/ccgs.sh"
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
 

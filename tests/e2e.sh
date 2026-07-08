@@ -7,8 +7,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
-export PATH="$REPO_DIR:$PATH"
-chmod +x "$REPO_DIR/ccgs"
+chmod +x "$REPO_DIR/ccgs.sh"
+ccgs() { "$REPO_DIR/ccgs.sh" "$@"; }
+export -f ccgs
 
 VERBOSE=0
 [[ "${1:-}" == "--verbose" ]] && VERBOSE=1

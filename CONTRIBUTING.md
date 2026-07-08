@@ -67,5 +67,5 @@ review. The rules below are prescriptive.
 The following must pass on every PR:
 
 - **Tests** — `bash tests/e2e.sh`
-- **Shell** — `shellcheck ccgs` (install via `brew install shellcheck` or
+- **Shell** — `shellcheck ccgs.sh` (install via `brew install shellcheck` or
   `apt install shellcheck`)

@@ -13,9 +13,9 @@ TMP_DIR=$(mktemp -d)
 trap "rm -rf '$TMP_DIR'" EXIT
 
 printf '[ccgs] Downloading...\n'
-curl -fsSL "${BASE_URL}/ccgs"        -o "$TMP_DIR/ccgs"
+curl -fsSL "${BASE_URL}/ccgs.sh"     -o "$TMP_DIR/ccgs.sh"
 curl -fsSL "${BASE_URL}/install.sh"  -o "$TMP_DIR/install.sh"
-chmod +x "$TMP_DIR/ccgs"
+chmod +x "$TMP_DIR/ccgs.sh"
 
 printf '[ccgs] Installing...\n'
 CCGS_REPO_DIR="$TMP_DIR" bash "$TMP_DIR/install.sh" "$@"
