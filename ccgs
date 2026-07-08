@@ -399,10 +399,21 @@ PYEOF
 }
 
 cmd_add() {
-    local raw_name="${1:-}" url="${2:-}" key="${3:-}"
+    local raw_name="${1:-}"; shift || true
+    local url="" key=""
 
-    [[ -n "$raw_name" ]] || die "Usage: ccgs add <name> <url> [key]"
-    [[ -n "$url" ]]      || die "Usage: ccgs add <name> <url> [key]"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --base-url) url="${2:-}"; shift 2 ;;
+            --token)    key="${2:-}"; shift 2 ;;
+            *)
+                [[ -z "$url" ]] && url="$1" || key="$1"
+                shift ;;
+        esac
+    done
+
+    [[ -n "$raw_name" ]] || die "Usage: ccgs add <name> <url> [--token <key>]"
+    [[ -n "$url" ]]      || die "Usage: ccgs add <name> --base-url <url> [--token <key>]"
 
     [[ "$url" =~ ^https?:// ]] || die "URL must start with http:// or https://"
 
@@ -473,7 +484,7 @@ cmd_list() {
     if [[ -z "$names" ]]; then
         info "(no proxies configured)"
         info ""
-        info "Add one:  ccgs add litellm http://localhost:4000 sk-..."
+        info "Add one:  ccgs add litellm https://litellm.my-company.com sk-..."
         return 0
     fi
 
@@ -567,7 +578,8 @@ cmd_help() {
     printf "  ${GREEN}native${RESET}                   Switch to native Anthropic API (Pro subscription)\n"
     printf "  ${GREEN}proxy${RESET} <name>             Switch to a named proxy (writes settings.json)\n"
     printf "  ${GREEN}models list${RESET} [name]       List models from current or named proxy\n"
-    printf "  ${GREEN}add${RESET} <name> <url> [key]   Add or update a proxy configuration\n"
+    printf "  ${GREEN}add${RESET} <name> <url> [key]                    Add or update a proxy configuration\n"
+    printf "  ${GREEN}add${RESET} <name> --base-url <url> [--token <key>]  (named-flag form)\n"
     printf "  ${GREEN}remove${RESET} <name>            Remove a proxy configuration\n"
     printf "  ${GREEN}list${RESET}                     List all configured proxies\n"
     printf "  ${GREEN}status${RESET}                   Show current mode and settings.json state\n"
@@ -577,7 +589,8 @@ cmd_help() {
     printf "${BOLD}GLOBAL FLAGS${RESET}\n"
     printf "  --session    Export env vars into current shell (requires shell function or eval)\n\n"
     printf "${BOLD}EXAMPLES${RESET}\n"
-    printf "  ccgs add litellm http://localhost:4000 sk-mykey\n"
+    printf "  ccgs add litellm https://litellm.my-company.com sk-mykey\n"
+    printf "  ccgs add litellm --base-url https://litellm.my-company.com --token sk-mykey\n"
     printf "  ccgs proxy litellm\n"
     printf "  ccgs native\n"
     printf "  ccgs models list litellm\n"
@@ -738,7 +751,7 @@ main() {
             esac
             ;;
         add)
-            [[ $# -ge 2 ]] || die "Usage: ccgs add <name> <url> [key]"
+            [[ $# -ge 2 ]] || die "Usage: ccgs add <name> <url> [--token <key>]"
             load_config
             cmd_add "$@"
             ;;
