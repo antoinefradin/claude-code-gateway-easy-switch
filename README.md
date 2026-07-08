@@ -213,8 +213,8 @@ Models available on 'litellm' (https://litellm.my-company.com):
 **Session-only (env vars, no settings.json write)**
 
 ```bash
-eval "$(ccgs proxy litellm --session)"
-eval "$(ccgs native --session)"
+ccgs proxy litellm --session
+ccgs native --session
 ```
 ```text
 [ccgs] Session vars applied to current shell.
@@ -278,9 +278,9 @@ bash uninstall.sh
 By default, `ccgs proxy` writes to `settings.json` — permanent across all terminals and Claude Code restarts. Use `--session` when you want the switch to only affect the current shell session:
 
 ```bash
-# Requires the shell function (installed automatically) or eval:
-eval "$(ccgs proxy litellm --session)"
-eval "$(ccgs native --session)"
+# Requires the shell function (installed automatically):
+ccgs proxy litellm --session
+ccgs native --session
 
 # Verify
 echo $ANTHROPIC_BASE_URL

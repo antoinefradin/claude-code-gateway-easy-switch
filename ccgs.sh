@@ -595,7 +595,7 @@ cmd_help() {
     printf "  ccgs native\n"
     printf "  ccgs models list litellm\n"
     printf "  ccgs status\n"
-    printf "  eval \"\$(ccgs proxy litellm --session)\"   # session-only, no settings.json write\n\n"
+    printf "  ccgs proxy litellm --session   # session-only, no settings.json write\n\n"
     printf "${BOLD}CONFIG FILE${RESET}\n"
     printf "  %s\n\n" "$CCGS_CONFIG_FILE"
     printf "${BOLD}DOCS${RESET}\n"

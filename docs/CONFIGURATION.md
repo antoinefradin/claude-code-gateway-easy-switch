@@ -209,7 +209,7 @@ The key thing to confirm is that Base URL and Model match your `ccgs config` —
 | Mode | Command | Scope | How |
 |---|---|---|---|
 | Persistent (default) | `ccgs proxy litellm` | All terminals, all Claude Code sessions | Writes `settings.json` |
-| Session-only | `eval "$(ccgs proxy litellm --session)"` | Current shell only | Exports env vars into current shell |
+| Session-only | `ccgs proxy litellm --session` | Current shell only | Exports env vars into current shell |
 
 Session-only mode does **not** write `settings.json`. The exported vars (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_MODEL`) take precedence over `settings.json` for any Claude Code process spawned from that shell.
 

@@ -174,7 +174,7 @@ unset ANTHROPIC_AUTH_TOKEN
 unset ANTHROPIC_MODEL
 
 # Or use session mode intentionally:
-eval "$(ccgs proxy litellm --session)"
+ccgs proxy litellm --session
 ```
 
 ---
