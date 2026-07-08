@@ -301,12 +301,13 @@ done
 
 ccgs native >/dev/null 2>&1
 
-# T36: models set with no proxy active and no name errors gracefully
+# T36: models set with no proxy active (but proxies configured) points at
+# `ccgs proxy <name>` / `ccgs list` instead of just saying "no proxy active"
 T36_OUT=$(ccgs models set 2>&1 || true)
-if echo "$T36_OUT" | grep -qi "no proxy active"; then
-    pass_test "T36: models set with no active proxy errors gracefully"
+if echo "$T36_OUT" | grep -qi "no proxy active" && echo "$T36_OUT" | grep -q "ccgs proxy <name>"; then
+    pass_test "T36: models set with no active proxy points at 'ccgs proxy <name>'"
 else
-    fail_test "T36: models set with no active proxy errors gracefully  (got: $T36_OUT)"
+    fail_test "T36: models set with no active proxy points at 'ccgs proxy <name>'  (got: $T36_OUT)"
 fi
 
 # T37: models set on an unknown proxy errors gracefully
@@ -358,6 +359,18 @@ if [[ "$BEFORE44" == "$AFTER44" ]]; then
     pass_test "T44: models set on inactive proxy does not touch settings.json"
 else
     fail_test "T44: models set on inactive proxy does not touch settings.json  (before=$BEFORE44 after=$AFTER44)"
+fi
+
+# T45: with zero proxies configured anywhere, the hint says "add one" instead
+# of "select one" — isolated XDG_CONFIG_HOME so it doesn't see the proxies
+# added earlier in this suite.
+EMPTY_CONFIG_HOME=$(mktemp -d /tmp/ccgs_test_empty_config_XXXX)
+T45_OUT=$(XDG_CONFIG_HOME="$EMPTY_CONFIG_HOME" ccgs models set 2>&1 || true)
+rm -rf "$EMPTY_CONFIG_HOME"
+if echo "$T45_OUT" | grep -qi "no proxies configured" && echo "$T45_OUT" | grep -q "ccgs add"; then
+    pass_test "T45: models set with zero proxies configured suggests 'ccgs add'"
+else
+    fail_test "T45: models set with zero proxies configured suggests 'ccgs add'  (got: $T45_OUT)"
 fi
 
 # ─── Results ──────────────────────────────────────────────────────────────────

@@ -420,12 +420,27 @@ cmd_proxy() {
 
 resolve_proxy_name() {
     # Resolves an explicit proxy name arg, falling back to the active proxy.
-    # Dies with a usage-specific message if neither is available.
+    # Prints actionable guidance and exits if neither is available. Note:
+    # callers capture this function's stdout via $(...), so every info/err
+    # line printed here must be explicitly redirected to stderr or it will
+    # be silently swallowed instead of shown to the user.
     local proxy_name="${1:-}" usage="$2"
 
     if [[ -z "$proxy_name" ]]; then
         local active="${CCGS_ACTIVE:-native}"
-        [[ "$active" != "native" ]] || die "No proxy active. Usage: $usage  |  or switch to a proxy first."
+        if [[ "$active" == "native" ]]; then
+            err "No proxy active."
+            if [[ -z "$(list_proxy_names)" ]]; then
+                info "No proxies configured yet. Add one first:" >&2
+                info "  ccgs add <name> <url> [key]" >&2
+            else
+                info "Select a proxy first:" >&2
+                info "  ccgs proxy <name>   # switch to it" >&2
+                info "  ccgs list           # see configured proxies" >&2
+            fi
+            info "Or target one directly:  $usage" >&2
+            exit 1
+        fi
         proxy_name="$active"
     fi
 
