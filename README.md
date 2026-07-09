@@ -6,7 +6,7 @@
 
 > One command to switch Claude Code between native Anthropic and any LiteLLM / OpenAI-compatible proxy.
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Bash](https://img.shields.io/badge/bash-3.2%2B-orange)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
@@ -39,7 +39,7 @@ ccgs add litellm https://litellm.my-company.com sk-yourkey
 
   Switch to it:          ccgs proxy litellm
   List models:           ccgs models list litellm
-  Set a default model:   ccgs config
+  Set a default model:   ccgs models set litellm
 ```
 
 **3. Switch to proxy**
@@ -91,6 +91,19 @@ Only the four ccgs-managed keys (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `
 
 Switching back with `ccgs native` simply removes those keys.
 
+### What changes where
+
+`ccgs` stores your proxies in its own config at `~/.config/ccgs/config` (the `CCGS_*` variables) and projects them into `~/.claude/settings.json` (the `ANTHROPIC_*` keys Claude Code reads) when you activate a proxy. The mapping is one-to-one:
+
+| `~/.config/ccgs/config` | → `~/.claude/settings.json` (`env`) | Set by |
+|---|---|---|
+| `CCGS_PROXY_<NAME>_URL` | `ANTHROPIC_BASE_URL` | `ccgs add`, applied by `ccgs proxy <name>` |
+| `CCGS_PROXY_<NAME>_KEY` | `ANTHROPIC_AUTH_TOKEN` | `ccgs add`, applied by `ccgs proxy <name>` |
+| `CCGS_PROXY_<NAME>_MODEL` | `ANTHROPIC_MODEL` | **`ccgs models set <name>`** (or `ccgs config`), applied by `ccgs proxy <name>` |
+| `CCGS_ACTIVE` | *(internal — never written to settings.json)* | `ccgs proxy` / `ccgs native` |
+
+Empty `KEY` or `MODEL` values are omitted from `settings.json` entirely (open proxy / Claude Code's default model). `ANTHROPIC_API_KEY` is never set — only cleared on `ccgs native` so a stale key can't shadow the proxy token. Running `ccgs models set <name>` on the **currently active** proxy rewrites `ANTHROPIC_MODEL` in `settings.json` immediately; otherwise it just updates the config until the next `ccgs proxy <name>`. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md#settingsjson-integration) for full before/after examples.
+
 ---
 
 ## Command Reference
@@ -101,6 +114,7 @@ Switching back with `ccgs native` simply removes those keys.
 | `ccgs proxy <name>` | Switch to a named proxy |
 | `ccgs models list` | List models from the active proxy |
 | `ccgs models list <name>` | List models from a specific proxy |
+| `ccgs models set [name]` | Interactively pick a default model (arrow keys) |
 | `ccgs add <name> <url> [key]` | Add or update a proxy (positional) |
 | `ccgs add <name> --base-url <url> [--token <key>]` | Add or update a proxy (named flags) |
 | `ccgs remove <name>` | Remove a proxy |
@@ -126,7 +140,7 @@ ccgs add litellm --base-url https://litellm.my-company.com --token sk-mykey
 
   Switch to it:          ccgs proxy litellm
   List models:           ccgs models list litellm
-  Set a default model:   ccgs config
+  Set a default model:   ccgs models set litellm
 ```
 
 ```bash
@@ -209,6 +223,24 @@ Models available on 'litellm' (https://litellm.my-company.com):
 
   Total: 3 model(s)
 ```
+
+**Pick a default model interactively**
+
+```bash
+ccgs models set litellm
+```
+```text
+Fetching models from 'litellm' (https://litellm.my-company.com)...
+Select default model for 'litellm'  (↑/↓ or j/k, Enter to select, q to cancel)
+    (clear default — use Claude Code's default)
+  › claude-opus-4-8
+    claude-sonnet-5
+[ccgs] Default model for 'litellm' set to: claude-opus-4-8
+  Applied immediately — 'litellm' is the active proxy.
+  Restart Claude Code to apply.
+```
+
+Navigate with `↑`/`↓` (or `j`/`k`), `Enter` to select, `q`/`Esc` to cancel. If the proxy you're setting is the active one, the change is written straight to `settings.json` — no need to run `ccgs proxy <name>` again. Piping input (e.g. in scripts or CI) falls back to a numbered prompt automatically.
 
 **Session-only (env vars, no settings.json write)**
 

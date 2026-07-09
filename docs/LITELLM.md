@@ -177,15 +177,29 @@ ccgs status
 
 ## Setting a Default Model
 
-If your proxy exposes multiple models and you want Claude Code to use a specific one:
+If your proxy exposes multiple models and you want Claude Code to use a specific one, pick it interactively:
 
 ```bash
-# Edit config and set CCGS_PROXY_LITELLM_MODEL
-ccgs config
-# Add: CCGS_PROXY_LITELLM_MODEL="claude-opus-4-8"
+ccgs models set litellm
 ```
 
-Or set `ANTHROPIC_MODEL` via `ccgs config` directly.
+This fetches the live model list from `litellm`'s `/v1/models` endpoint and lets you choose with the arrow keys (↑/↓ or j/k, Enter to confirm, q/Esc to cancel):
+
+```text
+Fetching models from 'litellm' (https://litellm.my-company.com)...
+Select default model for 'litellm'  (↑/↓ or j/k, Enter to select, q to cancel)
+    (clear default — use Claude Code's default)
+  › claude-opus-4-8
+    claude-sonnet-5
+```
+
+Piping input (scripts / CI) falls back to a numbered prompt automatically.
+
+**What it changes:** the choice is stored as `CCGS_PROXY_LITELLM_MODEL` in `~/.config/ccgs/config`, which maps to `ANTHROPIC_MODEL` in `~/.claude/settings.json`. If `litellm` is the **active** proxy, `ANTHROPIC_MODEL` is rewritten immediately — no need to re-run `ccgs proxy litellm`. If it isn't active, only the config changes, and the model is applied the next time you `ccgs proxy litellm`.
+
+To clear a previously-set default (falls back to Claude Code's own default), select `(clear default — use Claude Code's default)` — this empties `CCGS_PROXY_LITELLM_MODEL` and removes `ANTHROPIC_MODEL` from `settings.json`.
+
+You can still set it manually by editing `CCGS_PROXY_LITELLM_MODEL` via `ccgs config` if you prefer. See [CONFIGURATION.md](CONFIGURATION.md#how-ccgs-config-maps-to-settingsjson) for the full variable mapping.
 
 ---
 

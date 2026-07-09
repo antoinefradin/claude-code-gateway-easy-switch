@@ -52,7 +52,7 @@ For each proxy named `<NAME>` (uppercase, underscores), three variables are stor
 |---|---|---|---|
 | `CCGS_PROXY_<NAME>_URL` | string | Yes | Base URL of the proxy (must start with `http://` or `https://`) |
 | `CCGS_PROXY_<NAME>_KEY` | string | No | API key / Bearer token. Empty = open proxy (no Authorization header sent) |
-| `CCGS_PROXY_<NAME>_MODEL` | string | No | Default model to set via `ANTHROPIC_MODEL`. Empty = use Claude Code's default |
+| `CCGS_PROXY_<NAME>_MODEL` | string | No | Default model to set via `ANTHROPIC_MODEL`. Empty = use Claude Code's default. Set interactively with `ccgs models set <name>` (recommended) or by editing this file directly via `ccgs config` |
 
 **Proxy name rules:** lowercase, letters/digits/underscores only. Dashes in names are automatically converted to underscores. So `my-proxy` and `my_proxy` both resolve to `CCGS_PROXY_MY_PROXY_*`.
 
@@ -94,7 +94,24 @@ These environment variables modify ccgs behavior at runtime:
 
 ## settings.json Integration
 
-When you run `ccgs proxy <name>` or `ccgs native`, ccgs reads and writes `~/.claude/settings.json`.
+When you run `ccgs proxy <name>`, `ccgs native`, or `ccgs models set <name>` (when `<name>` is the active proxy), ccgs reads and writes `~/.claude/settings.json`.
+
+### How ccgs config maps to settings.json
+
+`ccgs` keeps its own state in `~/.config/ccgs/config` (the `CCGS_*` variables) and, when you activate a proxy, projects the relevant ones into the `env` block of `~/.claude/settings.json` (the `ANTHROPIC_*` keys that Claude Code actually reads). The mapping is one-to-one:
+
+| ccgs config variable | → settings.json `env` key | Written by | Meaning |
+|---|---|---|---|
+| `CCGS_PROXY_<NAME>_URL` | `ANTHROPIC_BASE_URL` | `ccgs add` sets it in config; `ccgs proxy <name>` projects it | Proxy base URL |
+| `CCGS_PROXY_<NAME>_KEY` | `ANTHROPIC_AUTH_TOKEN` | `ccgs add` sets it in config; `ccgs proxy <name>` projects it | Bearer token — omitted entirely from `settings.json` when empty (open proxy) |
+| `CCGS_PROXY_<NAME>_MODEL` | `ANTHROPIC_MODEL` | `ccgs models set <name>` (or manual `ccgs config`) sets it in config; `ccgs proxy <name>` projects it | Default model — omitted entirely from `settings.json` when empty (uses Claude Code's default) |
+| `CCGS_ACTIVE` | *(not projected)* | `ccgs proxy` / `ccgs native` | Tracks the active mode inside ccgs only; never written to `settings.json` |
+
+Notes:
+
+- **`ANTHROPIC_API_KEY`** is never *set* by ccgs — it's only ever *removed* (cleared on `ccgs native`) so a stale key can't shadow the proxy token. It has no corresponding `CCGS_*` variable.
+- **`ccgs models set <name>`** always updates `CCGS_PROXY_<NAME>_MODEL` in the config. If that proxy is currently active, it *also* rewrites `ANTHROPIC_MODEL` in `settings.json` immediately (or removes it, if you chose "clear default") so you don't have to re-run `ccgs proxy <name>`. If the proxy isn't active, only the config changes — the model is applied the next time you `ccgs proxy <name>`.
+- **`ccgs native`** removes all four managed keys (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`) from `settings.json`, fully resetting Claude Code to your native Anthropic account.
 
 **What ccgs touches (only):**
 
@@ -160,6 +177,22 @@ After `ccgs native`:
   }
 }
 ```
+
+### `ccgs models set` on the active proxy
+
+If `litellm` is already active (from the example above) and you run `ccgs models set litellm` and pick `claude-opus-4-8`, ccgs updates `CCGS_PROXY_LITELLM_MODEL="claude-opus-4-8"` in its config **and** rewrites just the one key in `settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://litellm.my-company.com",
+    "ANTHROPIC_AUTH_TOKEN": "sk-abc",
+    "ANTHROPIC_MODEL": "claude-opus-4-8"
+  }
+}
+```
+
+Choosing "clear default — use Claude Code's default" instead sets `CCGS_PROXY_LITELLM_MODEL=""` and removes `ANTHROPIC_MODEL` from `settings.json`, leaving `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` in place.
 
 ---
 

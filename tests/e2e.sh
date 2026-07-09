@@ -264,6 +264,115 @@ else
     fail_test "T35: add without URL shows usage"
 fi
 
+# ─── T36-T44: ccgs models set (interactive default-model picker) ─────────────
+# Spins up a tiny local /v1/models fixture server so the picker's fetch/parse/
+# write/apply pipeline is exercised end-to-end (arrow-key rendering itself is
+# not testable headlessly — these drive the non-TTY numbered-prompt fallback,
+# which shares all the same code except the raw-terminal input loop).
+
+FIXTURE_PORT=18934
+
+python3 - "$FIXTURE_PORT" > /dev/null 2>&1 <<'PY' &
+import sys, http.server, json
+
+port = int(sys.argv[1])
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        body = {"data": [{"id": "claude-opus-4-8"}, {"id": "claude-sonnet-5"}]}
+        self.wfile.write(json.dumps(body).encode())
+    def log_message(self, *args):
+        pass
+
+http.server.HTTPServer(('127.0.0.1', port), Handler).serve_forever()
+PY
+FIXTURE_PID=$!
+# shellcheck disable=SC2064
+trap "rm -rf '$XDG_CONFIG_HOME'; rm -f '$CLAUDE_SETTINGS'; kill $FIXTURE_PID 2>/dev/null || true" EXIT
+
+# Wait for the fixture server to come up (bounded, no fixed sleep guesswork)
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+    curl -s -o /dev/null "http://127.0.0.1:$FIXTURE_PORT/v1/models" && break
+    sleep 0.2
+done
+
+ccgs native >/dev/null 2>&1
+
+# T36: models set with no proxy active (but proxies configured) points at
+# `ccgs proxy <name>` / `ccgs list` instead of just saying "no proxy active"
+T36_OUT=$(ccgs models set 2>&1 || true)
+if echo "$T36_OUT" | grep -qi "no proxy active" && echo "$T36_OUT" | grep -q "ccgs proxy <name>"; then
+    pass_test "T36: models set with no active proxy points at 'ccgs proxy <name>'"
+else
+    fail_test "T36: models set with no active proxy points at 'ccgs proxy <name>'  (got: $T36_OUT)"
+fi
+
+# T37: models set on an unknown proxy errors gracefully
+T37_OUT=$(ccgs models set doesnotexist 2>&1 || true)
+if echo "$T37_OUT" | grep -qi "not found"; then
+    pass_test "T37: models set on unknown proxy errors gracefully"
+else
+    fail_test "T37: models set on unknown proxy errors gracefully  (got: $T37_OUT)"
+fi
+
+# T38: add a proxy backed by the fixture server
+ccgs add pickerproxy "http://127.0.0.1:$FIXTURE_PORT" >/dev/null 2>&1
+check_output "T38: list shows pickerproxy" "pickerproxy" ccgs list
+
+# T39: models set (inactive proxy, non-TTY numbered fallback) writes config
+# Options are: 1) clear default, 2) claude-opus-4-8, 3) claude-sonnet-5
+echo "2" | ccgs models set pickerproxy >/dev/null 2>&1
+check "T39: models set writes CCGS_PROXY_PICKERPROXY_MODEL to config" \
+    grep -q 'CCGS_PROXY_PICKERPROXY_MODEL="claude-opus-4-8"' "$XDG_CONFIG_HOME/ccgs/config"
+
+# T40: switching to pickerproxy carries the picked model into settings.json
+ccgs proxy pickerproxy >/dev/null 2>&1
+py_assert "T40: proxy pickerproxy carries picked model into ANTHROPIC_MODEL" \
+    "assert d.get('env',{}).get('ANTHROPIC_MODEL') == 'claude-opus-4-8', repr(d)"
+
+# T41: models set on the *active* proxy applies to settings.json immediately
+echo "3" | ccgs models set pickerproxy >/dev/null 2>&1
+py_assert "T41: models set applies immediately when proxy is active" \
+    "assert d.get('env',{}).get('ANTHROPIC_MODEL') == 'claude-sonnet-5', repr(d)"
+
+# T42: the "clear default" option removes ANTHROPIC_MODEL immediately (active proxy)
+echo "1" | ccgs models set pickerproxy >/dev/null 2>&1
+py_assert "T42: clear-default option removes ANTHROPIC_MODEL immediately" \
+    "assert 'ANTHROPIC_MODEL' not in d.get('env', {}), repr(d)"
+
+# T43: re-picking a model, then switching to native, fully resets it
+echo "2" | ccgs models set pickerproxy >/dev/null 2>&1
+py_assert "T43a: model re-applied before native reset" \
+    "assert d.get('env',{}).get('ANTHROPIC_MODEL') == 'claude-opus-4-8', repr(d)"
+ccgs native >/dev/null 2>&1
+py_assert "T43b: native clears ANTHROPIC_MODEL set via models set" \
+    "assert 'ANTHROPIC_MODEL' not in d.get('env', {}), repr(d)"
+
+# T44: models set on a now-inactive proxy does not touch settings.json
+BEFORE44=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); print(d.get('env',{}).get('ANTHROPIC_MODEL','none'))")
+echo "3" | ccgs models set pickerproxy >/dev/null 2>&1
+AFTER44=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); print(d.get('env',{}).get('ANTHROPIC_MODEL','none'))")
+if [[ "$BEFORE44" == "$AFTER44" ]]; then
+    pass_test "T44: models set on inactive proxy does not touch settings.json"
+else
+    fail_test "T44: models set on inactive proxy does not touch settings.json  (before=$BEFORE44 after=$AFTER44)"
+fi
+
+# T45: with zero proxies configured anywhere, the hint says "add one" instead
+# of "select one" — isolated XDG_CONFIG_HOME so it doesn't see the proxies
+# added earlier in this suite.
+EMPTY_CONFIG_HOME=$(mktemp -d /tmp/ccgs_test_empty_config_XXXX)
+T45_OUT=$(XDG_CONFIG_HOME="$EMPTY_CONFIG_HOME" ccgs models set 2>&1 || true)
+rm -rf "$EMPTY_CONFIG_HOME"
+if echo "$T45_OUT" | grep -qi "no proxies configured" && echo "$T45_OUT" | grep -q "ccgs add"; then
+    pass_test "T45: models set with zero proxies configured suggests 'ccgs add'"
+else
+    fail_test "T45: models set with zero proxies configured suggests 'ccgs add'  (got: $T45_OUT)"
+fi
+
 # ─── Results ──────────────────────────────────────────────────────────────────
 
 printf '\n\n'

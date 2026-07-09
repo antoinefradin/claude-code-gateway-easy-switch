@@ -8,7 +8,7 @@ set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-readonly CCGS_VERSION="0.1.0"
+readonly CCGS_VERSION="0.2.0"
 readonly CCGS_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/ccgs"
 readonly CCGS_CONFIG_FILE="$CCGS_CONFIG_DIR/config"
 # Allow CLAUDE_SETTINGS env var to override the settings.json path (useful for testing)
@@ -250,6 +250,132 @@ print_session_exports() {
     fi
 }
 
+# ─── Interactive Selection ────────────────────────────────────────────────────
+
+_select_restore_tty() {
+    [[ -n "${_SEL_OLD_STTY:-}" ]] && stty "$_SEL_OLD_STTY" 2>/dev/null
+    tput cnorm 2>/dev/null
+    true
+}
+
+_select_render() {
+    local i=0
+    while [[ $i -lt $_SEL_COUNT ]]; do
+        if [[ $i -eq $_SEL_INDEX ]]; then
+            printf "${GREEN}  › %s${RESET}\n" "${_SEL_OPTIONS[$i]}" >&2
+        else
+            printf "    %s\n" "${_SEL_OPTIONS[$i]}" >&2
+        fi
+        i=$((i + 1))
+    done
+}
+
+interactive_select() {
+    # Usage: interactive_select "<prompt>" opt1 opt2 ...
+    # Prints the chosen option to stdout and returns 0 on Enter.
+    # Returns 1 if the user cancelled (q / Esc / Ctrl-C).
+    # Returns 2 immediately if not running interactively (caller should
+    # fall back). Checked against stdin/stderr, not stdout: callers always
+    # invoke this as `result=$(interactive_select ...)` to capture the
+    # final answer, which makes fd1 a pipe even in a real terminal — the
+    # menu itself is rendered to stderr, so that's the stream that matters.
+    local label="$1"; shift
+    _SEL_OPTIONS=("$@")
+    _SEL_COUNT=${#_SEL_OPTIONS[@]}
+    _SEL_INDEX=0
+
+    [[ $_SEL_COUNT -gt 0 ]] || return 1
+    [[ -t 0 && -t 2 ]] || return 2
+
+    _SEL_OLD_STTY=$(stty -g 2>/dev/null) || _SEL_OLD_STTY=""
+    stty -echo -icanon min 1 time 0 2>/dev/null
+    tput civis 2>/dev/null
+    trap _select_restore_tty EXIT INT TERM
+
+    printf "${BOLD}%s${RESET}  ${CYAN}(↑/↓ or j/k, Enter to select, q to cancel)${RESET}\n" "$label" >&2
+    _select_render
+
+    local key rest cancelled=0
+    while true; do
+        IFS= read -rsn1 key || key=""
+        if [[ "$key" == $'\x1b' ]]; then
+            # bash 3.2's `read -t` only accepts whole seconds, so this can't
+            # be a short fractional timeout. Arrow-key escape sequences
+            # arrive as a single burst, so `read` returns as soon as both
+            # bytes land; a bare Esc press only pays the full 1s wait (q
+            # cancels instantly if that delay matters).
+            IFS= read -rsn2 -t 1 rest || rest=""
+            key="$key$rest"
+        fi
+
+        case "$key" in
+            $'\x1b[A'|k)
+                _SEL_INDEX=$((_SEL_INDEX - 1))
+                [[ $_SEL_INDEX -lt 0 ]] && _SEL_INDEX=$((_SEL_COUNT - 1))
+                ;;
+            $'\x1b[B'|j)
+                _SEL_INDEX=$((_SEL_INDEX + 1))
+                [[ $_SEL_INDEX -ge $_SEL_COUNT ]] && _SEL_INDEX=0
+                ;;
+            ""|$'\n'|$'\r')
+                break
+                ;;
+            q|$'\x1b'|$'\x03')
+                cancelled=1
+                break
+                ;;
+        esac
+        printf "\033[%dA" "$_SEL_COUNT" >&2
+        _select_render
+    done
+
+    _select_restore_tty
+    trap - EXIT INT TERM
+
+    [[ $cancelled -eq 1 ]] && return 1
+    printf '%s\n' "${_SEL_OPTIONS[$_SEL_INDEX]}"
+    return 0
+}
+
+prompt_model_choice() {
+    # Usage: prompt_model_choice "<prompt>" opt1 opt2 ...
+    # Interactive arrow-key picker with a numbered-prompt fallback for
+    # non-TTY contexts (pipes, scripts, tests). Prints the chosen option
+    # to stdout; returns non-zero if the user cancelled or chose nothing valid.
+    local label="$1"; shift
+    local options=("$@")
+    local result rc=0
+
+    if result=$(interactive_select "$label" "${options[@]}"); then
+        rc=0
+    else
+        rc=$?
+    fi
+
+    if [[ $rc -eq 0 ]]; then
+        printf '%s\n' "$result"
+        return 0
+    elif [[ $rc -ne 2 ]]; then
+        return 1
+    fi
+
+    # Non-interactive fallback: numbered prompt
+    printf "${BOLD}%s${RESET}\n" "$label" >&2
+    local i=1 opt
+    for opt in "${options[@]}"; do
+        printf "  %2d) %s\n" "$i" "$opt" >&2
+        i=$((i + 1))
+    done
+    printf "Enter number [1-%d]: " "${#options[@]}" >&2
+    local num
+    read -r num || num=""
+    if [[ "$num" =~ ^[0-9]+$ ]] && [[ "$num" -ge 1 ]] && [[ "$num" -le ${#options[@]} ]]; then
+        printf '%s\n' "${options[$((num - 1))]}"
+        return 0
+    fi
+    return 1
+}
+
 # ─── Commands ─────────────────────────────────────────────────────────────────
 
 cmd_native() {
@@ -301,41 +427,55 @@ cmd_proxy() {
     fi
 }
 
-cmd_models_list() {
-    local proxy_name="${1:-}"
+resolve_proxy_name() {
+    # Resolves an explicit proxy name arg, falling back to the active proxy.
+    # Prints actionable guidance and exits if neither is available. Note:
+    # callers capture this function's stdout via $(...), so every info/err
+    # line printed here must be explicitly redirected to stderr or it will
+    # be silently swallowed instead of shown to the user.
+    local proxy_name="${1:-}" usage="$2"
 
     if [[ -z "$proxy_name" ]]; then
         local active="${CCGS_ACTIVE:-native}"
         if [[ "$active" == "native" ]]; then
-            die "No proxy active. Usage: ccgs models list <name>  |  or switch to a proxy first."
+            err "No proxy active."
+            if [[ -z "$(list_proxy_names)" ]]; then
+                info "No proxies configured yet. Add one first:" >&2
+                info "  ccgs add <name> <url> [key]" >&2
+            else
+                info "Select a proxy first:" >&2
+                info "  ccgs proxy <name>   # switch to it" >&2
+                info "  ccgs list           # see configured proxies" >&2
+            fi
+            info "Or target one directly:  $usage" >&2
+            exit 1
         fi
         proxy_name="$active"
     fi
 
     proxy_name=$(normalize_proxy_name "$proxy_name")
     proxy_exists "$proxy_name" || die "Proxy '$proxy_name' not found. See: ccgs list"
+    printf '%s' "$proxy_name"
+}
 
+fetch_models_body() {
+    # Fetches /v1/models for a proxy. Echoes the path to a tmp file holding
+    # the raw JSON body. Dies on connection or HTTP failure.
+    local proxy_name="$1"
     require_curl
-    require_python3
 
     local url key
     url=$(get_proxy_url "$proxy_name")
     key=$(get_proxy_key "$proxy_name")
 
-    header "Models available on '$proxy_name' ($url):"
-    printf '\n'
-
     local tmp_body http_code
     tmp_body=$(mktemp)
-    # shellcheck disable=SC2064
-    trap "rm -f '$tmp_body'" EXIT
 
     local curl_args=(-s --connect-timeout 10 --max-time 30 -w "%{http_code}" -o "$tmp_body")
     [[ -n "$key" ]] && curl_args+=(-H "Authorization: Bearer $key")
 
     http_code=$(curl "${curl_args[@]}" "$url/v1/models" 2>/dev/null) || {
         rm -f "$tmp_body"
-        trap - EXIT
         die "curl failed to reach '$url'. Is the proxy running? Check: curl $url/health"
     }
 
@@ -348,9 +488,53 @@ cmd_models_list() {
         fi
         [[ -s "$tmp_body" ]] && { printf 'Response: '; cat "$tmp_body"; printf '\n'; } >&2
         rm -f "$tmp_body"
-        trap - EXIT
         exit 1
     fi
+
+    printf '%s' "$tmp_body"
+}
+
+list_model_ids() {
+    # Prints one sorted model ID per line from a /v1/models JSON body.
+    local tmp_body="$1"
+    python3 - "$tmp_body" << 'PYEOF'
+import sys, json
+
+with open(sys.argv[1]) as f:
+    raw = f.read().strip()
+
+if not raw:
+    sys.exit(0)
+
+try:
+    d = json.loads(raw)
+except json.JSONDecodeError:
+    sys.exit(0)
+
+for m in sorted(d.get("data", []), key=lambda x: x.get("id", "")):
+    mid = m.get("id")
+    if mid:
+        print(mid)
+PYEOF
+}
+
+cmd_models_list() {
+    local proxy_name
+    proxy_name=$(resolve_proxy_name "${1:-}" "ccgs models list <name>")
+
+    require_curl
+    require_python3
+
+    local url
+    url=$(get_proxy_url "$proxy_name")
+
+    header "Models available on '$proxy_name' ($url):"
+    printf '\n'
+
+    local tmp_body
+    tmp_body=$(fetch_models_body "$proxy_name")
+    # shellcheck disable=SC2064
+    trap "rm -f '$tmp_body'" EXIT
 
     python3 - "$tmp_body" << 'PYEOF'
 import sys, json
@@ -398,6 +582,71 @@ PYEOF
     trap - EXIT
 }
 
+cmd_models_set() {
+    local proxy_name
+    proxy_name=$(resolve_proxy_name "${1:-}" "ccgs models set <name>")
+
+    require_curl
+    require_python3
+
+    local url key varprefix
+    url=$(get_proxy_url "$proxy_name")
+    key=$(get_proxy_key "$proxy_name")
+    varprefix=$(proxy_var_prefix "$proxy_name")
+
+    header "Fetching models from '$proxy_name' ($url)..."
+
+    local tmp_body
+    tmp_body=$(fetch_models_body "$proxy_name")
+    # shellcheck disable=SC2064
+    trap "rm -f '$tmp_body'" EXIT
+
+    local ids=() id
+    while IFS= read -r id; do
+        [[ -n "$id" ]] && ids+=("$id")
+    done < <(list_model_ids "$tmp_body")
+
+    rm -f "$tmp_body"
+    trap - EXIT
+
+    [[ ${#ids[@]} -gt 0 ]] || die "No models found on '$proxy_name'. Check: curl $url/v1/models"
+
+    local current
+    current=$(get_proxy_model "$proxy_name")
+
+    local clear_label="(clear default — use Claude Code's default)"
+    local options=("$clear_label" "${ids[@]}")
+
+    local prompt_label="Select default model for '$proxy_name'"
+    [[ -n "$current" ]] && prompt_label="$prompt_label (current: $current)"
+
+    local choice
+    choice=$(prompt_model_choice "$prompt_label" "${options[@]}") || {
+        info "No changes made."
+        return 0
+    }
+
+    local selected="$choice"
+    [[ "$selected" == "$clear_label" ]] && selected=""
+
+    write_config_value "${varprefix}_MODEL" "$selected"
+
+    if [[ -n "$selected" ]]; then
+        success "Default model for '$proxy_name' set to: $selected"
+    else
+        success "Default model for '$proxy_name' cleared."
+    fi
+
+    local active="${CCGS_ACTIVE:-native}"
+    if [[ "$active" == "$proxy_name" ]]; then
+        update_settings_json "proxy" "$url" "$key" "$selected"
+        info "Applied immediately — '$proxy_name' is the active proxy."
+        info "Restart Claude Code to apply."
+    else
+        info "Switch to it to apply:  ccgs proxy $proxy_name"
+    fi
+}
+
 cmd_add() {
     local raw_name="${1:-}"; shift || true
     local url="" key=""
@@ -437,7 +686,7 @@ cmd_add() {
     info ""
     info "Switch to it:          ccgs proxy $name"
     info "List models:           ccgs models list $name"
-    info "Set a default model:   ccgs config"
+    info "Set a default model:   ccgs models set $name"
 }
 
 cmd_remove() {
@@ -578,6 +827,7 @@ cmd_help() {
     printf "  ${GREEN}native${RESET}                   Switch to native Anthropic API (Pro subscription)\n"
     printf "  ${GREEN}proxy${RESET} <name>             Switch to a named proxy (writes settings.json)\n"
     printf "  ${GREEN}models list${RESET} [name]       List models from current or named proxy\n"
+    printf "  ${GREEN}models set${RESET} [name]        Pick a default model interactively (arrow keys)\n"
     printf "  ${GREEN}add${RESET} <name> <url> [key]                    Add or update a proxy configuration\n"
     printf "  ${GREEN}add${RESET} <name> --base-url <url> [--token <key>]  (named-flag form)\n"
     printf "  ${GREEN}remove${RESET} <name>            Remove a proxy configuration\n"
@@ -594,6 +844,7 @@ cmd_help() {
     printf "  ccgs proxy litellm\n"
     printf "  ccgs native\n"
     printf "  ccgs models list litellm\n"
+    printf "  ccgs models set litellm       # pick a default model with arrow keys\n"
     printf "  ccgs status\n"
     printf "  ccgs proxy litellm --session   # session-only, no settings.json write\n\n"
     printf "${BOLD}CONFIG FILE${RESET}\n"
@@ -747,7 +998,8 @@ main() {
             shift || true
             case "$subcmd" in
                 list) load_config; cmd_models_list "$@" ;;
-                *) die "Unknown models subcommand: '$subcmd'. Try: ccgs models list" ;;
+                set)  load_config; cmd_models_set "$@" ;;
+                *) die "Unknown models subcommand: '$subcmd'. Try: ccgs models list  |  ccgs models set" ;;
             esac
             ;;
         add)
