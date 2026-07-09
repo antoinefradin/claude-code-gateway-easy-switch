@@ -207,7 +207,7 @@ Settings   Status   Config   Usage   Stats
 
 Version:          2.1.204
 Session ID:       11111111-1111-1111-1111-111111111111
-cwd:              /Users/you/Documents/GITHUB/claude-code-gateway-switch
+cwd:              /Users/you/Documents/GITHUB/claude-code-gateway-easy-switch
 Login method:     Claude Pro account
 Organization:     you@example.com's Organization
 Email:            you@example.com
@@ -224,7 +224,7 @@ Settings   Status   Config   Usage   Stats
 
 Version:          2.1.204
 Session ID:       22222222-2222-2222-2222-222222222222
-cwd:              /Users/you/Documents/GITHUB/claude-code-gateway-switch
+cwd:              /Users/you/Documents/GITHUB/claude-code-gateway-easy-switch
 Login method:     API key (ANTHROPIC_AUTH_TOKEN)
 API Base URL:     https://litellm.my-company.com
 Model:            claude-sonnet-5 (via ANTHROPIC_MODEL)

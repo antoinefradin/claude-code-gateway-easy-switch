@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # ccgs quick installer — one-liner bootstrap
-# curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-switch/main/quick-install.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-easy-switch/main/quick-install.sh | bash
 
 set -euo pipefail
 
-REPO="antoinefradin/claude-code-gateway-switch"
+REPO="antoinefradin/claude-code-gateway-easy-switch"
 BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 

@@ -27,7 +27,7 @@ If you're running `claude` from the ccgs repo, also check for a `.envrc` (direnv
 
 ```bash
 grep -rn "ANTHROPIC_AUTH_TOKEN\|ANTHROPIC_BASE_URL" \
-  /path/to/claude-code-gateway-switch
+  /path/to/claude-code-gateway-easy-switch
 ```
 
 ---

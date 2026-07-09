@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ccgs — Claude Code Gateway Switch
 # Switch Claude Code between native Anthropic and LiteLLM / OpenAI-compatible proxies.
-# https://github.com/antoinefradin/claude-code-gateway-switch
+# https://github.com/antoinefradin/claude-code-gateway-easy-switch
 # MIT License
 
 set -euo pipefail
@@ -56,7 +56,7 @@ init_config() {
     mkdir -p "$CCGS_CONFIG_DIR"
     cat > "$CCGS_CONFIG_FILE" << 'CONF'
 # ccgs configuration
-# https://github.com/antoinefradin/claude-code-gateway-switch
+# https://github.com/antoinefradin/claude-code-gateway-easy-switch
 CCGS_ACTIVE="native"
 
 # LiteLLM proxy (edit URL and key to match your setup)
@@ -850,7 +850,7 @@ cmd_help() {
     printf "${BOLD}CONFIG FILE${RESET}\n"
     printf "  %s\n\n" "$CCGS_CONFIG_FILE"
     printf "${BOLD}DOCS${RESET}\n"
-    printf "  https://github.com/antoinefradin/claude-code-gateway-switch\n"
+    printf "  https://github.com/antoinefradin/claude-code-gateway-easy-switch\n"
 }
 
 # ─── Shell Function Injection ─────────────────────────────────────────────────
