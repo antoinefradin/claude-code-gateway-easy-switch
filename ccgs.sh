@@ -254,7 +254,7 @@ print_session_exports() {
 
 _select_restore_tty() {
     [[ -n "${_SEL_OLD_STTY:-}" ]] && stty "$_SEL_OLD_STTY" 2>/dev/null
-    tput cnorm 2>/dev/null
+    tput cnorm >&2 2>/dev/null
     true
 }
 
@@ -289,7 +289,7 @@ interactive_select() {
 
     _SEL_OLD_STTY=$(stty -g 2>/dev/null) || _SEL_OLD_STTY=""
     stty -echo -icanon min 1 time 0 2>/dev/null
-    tput civis 2>/dev/null
+    tput civis >&2 2>/dev/null
     trap _select_restore_tty EXIT INT TERM
 
     printf "${BOLD}%s${RESET}  ${CYAN}(↑/↓ or j/k, Enter to select, q to cancel)${RESET}\n" "$label" >&2
