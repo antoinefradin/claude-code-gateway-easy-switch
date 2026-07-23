@@ -363,6 +363,14 @@ ccgs models list litellm
 
 ---
 
+## MCP & claude.ai Connectors
+
+Switching to a gateway disables **claude.ai connectors** (cloud-managed MCP) — but not MCP itself. Add the same servers locally with `claude mcp add`; they work regardless of provider.
+
+See [docs/MCP.md](docs/MCP.md) for why connectors and gateways are mutually exclusive, how to add MCP servers locally, and the MCP tool search caveat behind a custom base URL.
+
+---
+
 ## Requirements
 
 - **bash** 3.2+ (macOS default ships 3.2; any Linux bash works)
