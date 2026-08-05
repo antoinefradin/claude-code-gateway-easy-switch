@@ -1,0 +1,37 @@
+name: Release
+
+# Auto-versioned releases. On every push to main (i.e. a merged PR), release.sh
+# --auto reads the commits since the last vX.Y.Z tag, picks the semver bump from
+# Conventional Commits (feat → minor, fix/other → patch, ! / BREAKING → major),
+# bumps ccgs.sh + README badge + CHANGELOG, tags vX.Y.Z, and cuts a GitHub Release.
+# Website/docs/assets/workflow-only changes are skipped (no CLI release).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # push the release commit + tag and create the GitHub Release
+
+# Never run two releases at once; don't cancel an in-progress one.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # Skip the workflow's own release commit (belt-and-suspenders alongside the
+    # [skip ci] marker and GITHUB_TOKEN not re-triggering workflows).
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release)') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history + tags needed for range and bump detection
+
+      - name: Cut release
+        run: ./release.sh --auto --ci
+        env:
+          GH_TOKEN: ${{ github.token }}
