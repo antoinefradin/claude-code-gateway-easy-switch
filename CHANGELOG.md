@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented here.
 
+## [0.3.1] — 2026-08-05
+
+### Fixed
+
+- keep brand link on project Pages subpath
+
+### Changed
+
+Merge pull request #5 from antoinefradin/feat/website
+- restore GitHub Pages deploy workflow for /website
+- add release process guide
+
 ## [0.3.0] — 2026-08-05
 
 ### Added

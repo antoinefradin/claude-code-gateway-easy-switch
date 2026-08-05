@@ -6,7 +6,7 @@
 
 > **One command to switch Claude Code between native Anthropic and any LiteLLM / OpenAI-compatible proxy.**
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue)
+![Version](https://img.shields.io/badge/version-0.3.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Bash](https://img.shields.io/badge/bash-3.2%2B-orange)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
