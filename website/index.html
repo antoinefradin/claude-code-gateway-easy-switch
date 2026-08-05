@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ccgs — switch Claude Code's gateway in one command</title>
+  <meta name="description" content="ccgs switches Claude Code between the native Anthropic API and any LiteLLM / OpenAI-compatible proxy with one command — zero settings corruption, atomic writes, pure Bash." />
+  <meta name="theme-color" content="#0b0d0f" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ccgs" />
+  <meta property="og:title" content="ccgs — switch Claude Code's gateway in one command" />
+  <meta property="og:description" content="One command to switch Claude Code between native Anthropic and any LiteLLM / OpenAI-compatible proxy." />
+  <meta property="og:url" content="https://antoinefradin.github.io/claude-code-gateway-easy-switch/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://antoinefradin.github.io/claude-code-gateway-easy-switch/" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ccgs",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Linux",
+    "url": "https://antoinefradin.github.io/claude-code-gateway-easy-switch/",
+    "softwareVersion": "0.2.0",
+    "license": "https://opensource.org/license/mit",
+    "codeRepository": "https://github.com/antoinefradin/claude-code-gateway-easy-switch",
+    "description": "A zero-dependency Bash tool that switches Claude Code between the native Anthropic API and any LiteLLM / OpenAI-compatible proxy."
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" style="width:26px;height:26px" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h8a4 4 0 0 1 4 4"/><path d="M19 8l-3-2.5M19 8l-3 2.5"/><path d="M20 16h-8a4 4 0 0 1-4-4"/><path d="M5 16l3-2.5M5 16l3 2.5"/></g></svg>
+      </span>ccgs
+    </a>
+    <nav aria-label="Main">
+      <a href="#why">Why</a>
+      <a href="#commands">Commands</a>
+      <a href="#how">How it works</a>
+      <a href="#install">Install</a>
+    </nav>
+    <div class="header-actions">
+      <a class="header-source" href="https://github.com/antoinefradin/claude-code-gateway-easy-switch" aria-label="Source on GitHub">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .7A11.3 11.3 0 0 0 8.4 22.8c.6.1.8-.3.8-.6v-2.2c-3.4.7-4.1-1.4-4.1-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.6-1.4-5.6-6A4.7 4.7 0 0 1 5.7 7.4c-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.5 1.3a12 12 0 0 1 6.3 0C18 3.7 19.1 4 19.1 4c.6 1.7.2 3 .1 3.3a4.7 4.7 0 0 1 1.2 3.2c0 4.7-2.9 5.7-5.6 6 .4.4.8 1.1.8 2.2v3.4c0 .3.2.7.8.6A11.3 11.3 0 0 0 12 .7Z"/></svg>
+      </a>
+      <a class="btn btn-small" href="#install">Install</a>
+    </div>
+  </div>
+</header>
+
+<main id="main-content">
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-copy">
+      <a class="tag" href="https://github.com/antoinefradin/claude-code-gateway-easy-switch/releases">
+        <i class="dot dot-live"></i>v0.2.0 · macOS &amp; Linux
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <h1>Switch Claude Code's gateway in one command.</h1>
+      <p class="lede">ccgs flips Claude Code between the native Anthropic API and any LiteLLM or OpenAI-compatible proxy — without ever hand-editing <code>settings.json</code>. Only its four keys move; everything else stays untouched.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#install">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+          Install ccgs
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/antoinefradin/claude-code-gateway-easy-switch">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .7A11.3 11.3 0 0 0 8.4 22.8c.6.1.8-.3.8-.6v-2.2c-3.4.7-4.1-1.4-4.1-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.6-1.4-5.6-6A4.7 4.7 0 0 1 5.7 7.4c-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.5 1.3a12 12 0 0 1 6.3 0C18 3.7 19.1 4 19.1 4c.6 1.7.2 3 .1 3.3a4.7 4.7 0 0 1 1.2 3.2c0 4.7-2.9 5.7-5.6 6 .4.4.8 1.1.8 2.2v3.4c0 .3.2.7.8.6A11.3 11.3 0 0 0 12 .7Z"/></svg>
+          Source
+        </a>
+      </div>
+      <button type="button" class="copy-line" data-copy="curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-easy-switch/main/quick-install.sh | bash">
+        <code><b>$</b> curl -fsSL https://raw.githubusercontent.com/antoinefradin/claude-code-gateway-easy-switch/main/quick-install.sh | bash</code>
+        <span class="copy-line-icons" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon-check"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <span class="sr-only">Copy install command</span>
+      </button>
+    </div>
+
+    <div class="hero-stage">
+      <figure class="window">
+        <figcaption class="sr-only">A terminal running "ccgs status", showing the active proxy, its base URL, and the env block ccgs writes into settings.json.</figcaption>
+        <div class="window-bar" aria-hidden="true">
+          <div class="traffic"><span></span><span></span><span></span></div>
+          <div class="window-title"><strong>zsh</strong><span>— ccgs</span></div>
+          <div class="window-tools">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          </div>
+        </div>
+        <div class="term" aria-hidden="true">
+<p><span class="t-dim">$</span> ccgs status</p>
+<p class="t-space"><span class="t-tag">[ccgs]</span> status</p>
+<p class="t-space">  Active mode:      <span class="t-accent">litellm</span>  <i class="dot dot-live"></i></p>
+<p>  Proxy URL:        <span class="t-url">https://litellm.my-company.com</span></p>
+<p>  Auth key:         <span class="t-dim">sk-mykey...</span></p>
+<p class="t-space">  Config file:      <span class="t-dim">~/.config/ccgs/config</span></p>
+<p>  settings.json:    <span class="t-dim">~/.claude/settings.json</span></p>
+<p class="t-space">  Current settings.json env block:</p>
+<p>    <span class="t-key">ANTHROPIC_BASE_URL</span>     <span class="t-url">https://litellm.my-company.com</span></p>
+<p>    <span class="t-key">ANTHROPIC_AUTH_TOKEN</span>   <span class="t-dim">sk-mykey...</span></p>
+<p>    <span class="t-key">ANTHROPIC_MODEL</span>        <span class="t-val">claude-sonnet-5</span></p>
+<p class="t-space"><span class="t-dim">$</span> <span class="t-caret"><span></span></span></p>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ FACTS ============ -->
+  <ul class="facts">
+    <li data-reveal style="--i:0"><strong>Pure Bash 3.2+</strong><span>Runs on stock macOS shell and any Linux. No Node, no compiled binary.</span></li>
+    <li data-reveal style="--i:1"><strong>Zero settings corruption</strong><span>Only four ANTHROPIC_* keys move. Theme, hooks, permissions untouched.</span></li>
+    <li data-reveal style="--i:2"><strong>Atomic writes + backups</strong><span>Every change is written atomically and the last 10 settings.json are kept.</span></li>
+    <li data-reveal style="--i:3"><strong>MIT licensed</strong><span>One readable script. Nothing runs that you can't audit in the repo.</span></li>
+  </ul>
+
+  <!-- ============ WHY / DEMO ============ -->
+  <section class="section" id="why">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="kicker">The cost</p>
+        <h2>Every gateway switch is a hand-edit waiting to break.</h2>
+        <p class="lede">To point Claude Code at a proxy you open <code>~/.claude/settings.json</code>, add the right env keys, get the quoting right, and hope you didn't clobber your theme or hooks. Switch back and you undo it all by hand. Do it a few times a day and one of those edits eventually corrupts the file.</p>
+      </div>
+    </div>
+
+    <div class="demo" data-mode="without" data-reveal="rows">
+      <div class="demo-head">
+        <div class="switch" role="group" aria-label="Comparison">
+          <span class="switch-thumb" aria-hidden="true"></span>
+          <button type="button" aria-pressed="true" class="is-active">Hand-editing JSON</button>
+          <button type="button" aria-pressed="false">With ccgs</button>
+        </div>
+        <p class="demo-tally" aria-live="polite"><span>4 manual edits · 1 fragile file</span></p>
+      </div>
+      <ol class="demo-lines">
+        <li style="--i:0"><span class="demo-agent">open</span><code class="demo-command">settings.json</code><span class="demo-arrow" aria-hidden="true">→</span><span class="demo-file">edit env block</span><span class="demo-warn">mind the trailing comma</span></li>
+        <li style="--i:1"><span class="demo-agent">paste</span><code class="demo-command">BASE_URL + TOKEN</code><span class="demo-arrow" aria-hidden="true">→</span><span class="demo-file">4 keys by hand</span><span class="demo-warn">token in shell history</span></li>
+        <li style="--i:2"><span class="demo-agent">set</span><code class="demo-command">ANTHROPIC_MODEL</code><span class="demo-arrow" aria-hidden="true">→</span><span class="demo-file">which id again?</span><span class="demo-warn">no model list</span></li>
+        <li style="--i:3"><span class="demo-agent">switch</span><code class="demo-command">back to native</code><span class="demo-arrow" aria-hidden="true">→</span><span class="demo-file">delete keys by hand</span><span class="demo-warn">stale API key shadows token</span></li>
+      </ol>
+      <p class="demo-verdict">One bad edit and the whole file stops parsing.</p>
+    </div>
+  </section>
+
+  <!-- ============ COMMANDS / CONSOLE ============ -->
+  <section class="section" id="commands">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="kicker">Commands</p>
+        <h2>One verb per intent. JSON and tables, never guesswork.</h2>
+        <p class="lede">Add a proxy once, then switch with a single word. ccgs reads model lists straight from the gateway and lets you pick a default with the arrow keys.</p>
+      </div>
+      <a class="link" href="https://github.com/antoinefradin/claude-code-gateway-easy-switch#command-reference">Full reference
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+      </a>
+    </div>
+
+    <div class="console" data-reveal>
+      <div class="console-tabs">
+        <div class="console-tablist" role="tablist" aria-label="ccgs commands">
+          <button type="button" role="tab" id="tab-switch" aria-selected="true" aria-controls="panel-switch" tabindex="0" class="is-active">Switch</button>
+          <button type="button" role="tab" id="tab-add" aria-selected="false" aria-controls="panel-add" tabindex="-1">Add</button>
+          <button type="button" role="tab" id="tab-models" aria-selected="false" aria-controls="panel-models" tabindex="-1">Models</button>
+          <button type="button" role="tab" id="tab-status" aria-selected="false" aria-controls="panel-status" tabindex="-1">Status</button>
+          <span class="console-underline" aria-hidden="true"></span>
+        </div>
+        <span class="console-endpoint">~/.claude/settings.json</span>
+      </div>
+
+      <div class="console-body">
+        <div class="console-panel" role="tabpanel" id="panel-switch" aria-labelledby="tab-switch">
+          <p class="console-note">Flip Claude Code to a named proxy, then back to native. ccgs rewrites only its own keys.</p>
+<pre class="console-command"><span><b>$</b> ccgs proxy litellm</span></pre>
+<pre class="console-output"><span class="t-tag">[ccgs]</span> Switched to proxy 'litellm'.
+  URL:   <span class="j-str">https://litellm.my-company.com</span>
+  Key:   <span class="o-head">sk-mykey...</span>
+  Restart Claude Code to apply.
+
+<b>$</b> ccgs native
+<span class="t-tag">[ccgs]</span> Switched to native Anthropic mode.
+  Proxy settings cleared from settings.json.</pre>
+        </div>
+
+        <div class="console-panel" role="tabpanel" id="panel-add" aria-labelledby="tab-add" hidden>
+          <p class="console-note">Register a proxy once — positional or named flags. No-auth proxies are fine too.</p>
+<pre class="console-command"><span><b>$</b> ccgs add litellm https://litellm.my-company.com sk-mykey</span></pre>
+<pre class="console-output"><span class="t-tag">[ccgs]</span> Proxy 'litellm' configured.
+  URL:  <span class="j-str">https://litellm.my-company.com</span>
+  Key:  <span class="o-head">sk-mykey...</span>
+
+  Switch to it:          ccgs proxy litellm
+  List models:           ccgs models list litellm
+  Set a default model:   ccgs models set litellm</pre>
+        </div>
+
+        <div class="console-panel" role="tabpanel" id="panel-models" aria-labelledby="tab-models" hidden>
+          <p class="console-note">List models straight from the gateway, or pick a default interactively with the arrow keys.</p>
+<pre class="console-command"><span><b>$</b> ccgs models list litellm</span></pre>
+<pre class="console-output"><span class="o-head">Models available on 'litellm' (https://litellm.my-company.com):</span>
+
+  <span class="o-head">MODEL ID                        CTX IN     CTX OUT</span>
+  <span class="o-head">------------------------------------------------------</span>
+  <span class="j-str">claude-sonnet-5</span>                 200,000     64,000
+  <span class="j-str">claude-opus-4-8</span>                 200,000     32,000
+  <span class="j-str">claude-haiku-4-8</span>                200,000     32,000
+
+  Total: <span class="j-num">3</span> model(s)</pre>
+        </div>
+
+        <div class="console-panel" role="tabpanel" id="panel-status" aria-labelledby="tab-status" hidden>
+          <p class="console-note">See the active mode and exactly what lives in the settings.json env block right now.</p>
+<pre class="console-command"><span><b>$</b> ccgs status</span></pre>
+<pre class="console-output">  Active mode:      <span class="o-active">litellm</span>
+  Proxy URL:        <span class="j-str">https://litellm.my-company.com</span>
+  Auth key:         <span class="o-head">sk-mykey...</span>
+
+  Current settings.json env block:
+    <span class="j-key">ANTHROPIC_BASE_URL</span>       <span class="j-str">https://litellm.my-company.com</span>
+    <span class="j-key">ANTHROPIC_AUTH_TOKEN</span>     <span class="o-head">sk-mykey...</span>
+    <span class="j-key">ANTHROPIC_MODEL</span>          <span class="j-str">claude-sonnet-5</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW / CAPABILITIES ============ -->
+  <section class="section" id="how">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="kicker">How it works</p>
+        <h2>It edits four keys, and only ever those four.</h2>
+        <p class="lede">ccgs stores your proxies in its own XDG config and projects them into the <code>env</code> block Claude Code already reads. No daemon, no cloud account, no wrapper around the CLI.</p>
+      </div>
+    </div>
+    <ul class="specs">
+      <li data-reveal><h3>Only four managed keys</h3><p>ANTHROPIC_BASE_URL, ANTHROPIC_AUTH_TOKEN, ANTHROPIC_API_KEY and ANTHROPIC_MODEL are the only keys ccgs touches. Theme, effortLevel, permissions, hooks and every other env var pass through untouched.</p><code>~/.claude/settings.json</code></li>
+      <li data-reveal><h3>Multiple named proxies</h3><p>Keep LiteLLM, OpenRouter, an internal gateway and open no-auth proxies side by side. Switch between any of them by name in one command.</p><code>ccgs add · ccgs list</code></li>
+      <li data-reveal><h3>Interactive model picker</h3><p>Fetch the model list live from the proxy's /v1/models and choose a default with the arrow keys. Piped input falls back to a numbered prompt for CI.</p><code>ccgs models set litellm</code></li>
+      <li data-reveal><h3>Session mode</h3><p>Apply a switch to only the current shell — exported as env vars instead of written to settings.json — so one terminal can use a proxy while the rest stay native.</p><code>ccgs proxy litellm --session</code></li>
+      <li data-reveal><h3>Atomic writes &amp; backups</h3><p>settings.json is rewritten via a temp file and os.replace, never edited in place, and the last ten versions are kept so a bad switch is always recoverable.</p><code>tempfile + os.replace</code></li>
+      <li data-reveal><h3>Clean by construction</h3><p>Empty key or model values are omitted entirely, ANTHROPIC_API_KEY is only ever cleared so a stale key can't shadow the token, and ccgs never adopts settings it didn't write.</p><code>ccgs native</code></li>
+    </ul>
+  </section>
+
+  <!-- ============ INSTALL ============ -->
+  <section class="install" id="install" data-reveal>
+    <div class="install-copy">
+      <p class="kicker">Install</p>
+      <h2>One line, then it's on your PATH.</h2>
+      <p class="lede">The script installs <code>ccgs</code> to <code>~/.local/bin</code> and injects a shell function into your <code>.zshrc</code> or <code>.bashrc</code>. Choose <code>--user</code>, <code>--system</code>, or <code>--project</code>.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://github.com/antoinefradin/claude-code-gateway-easy-switch#installation">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+          Install guide
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/antoinefradin/claude-code-gateway-easy-switch">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .7A11.3 11.3 0 0 0 8.4 22.8c.6.1.8-.3.8-.6v-2.2c-3.4.7-4.1-1.4-4.1-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.6-1.4-5.6-6A4.7 4.7 0 0 1 5.7 7.4c-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.5 1.3a12 12 0 0 1 6.3 0C18 3.7 19.1 4 19.1 4c.6 1.7.2 3 .1 3.3a4.7 4.7 0 0 1 1.2 3.2c0 4.7-2.9 5.7-5.6 6 .4.4.8 1.1.8 2.2v3.4c0 .3.2.7.8.6A11.3 11.3 0 0 0 12 .7Z"/></svg>
+          Clone &amp; build
+        </a>
+      </div>
+    </div>
+<pre class="install-shell" aria-label="Install commands"><span style="--i:0"><b>$</b> curl -fsSL https://raw.githubusercontent.com/antoinefradin/\</span>
+<span style="--i:1">      claude-code-gateway-easy-switch/main/quick-install.sh | bash</span>
+<span style="--i:2"> </span>
+<span class="ok" style="--i:3">✓ ccgs installed in ~/.local/bin</span>
+<span class="ok" style="--i:4">✓ shell function added to ~/.zshrc</span>
+<span style="--i:5"> </span>
+<span class="cmt" style="--i:6"># then add a proxy and switch</span>
+<span style="--i:7"><b>$</b> ccgs add litellm https://litellm.my-company.com sk-key</span>
+<span style="--i:8"><b>$</b> ccgs proxy litellm</span></pre>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="brand-mark" style="width:28px;height:28px" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h8a4 4 0 0 1 4 4"/><path d="M19 8l-3-2.5M19 8l-3 2.5"/><path d="M20 16h-8a4 4 0 0 1-4-4"/><path d="M5 16l3-2.5M5 16l3 2.5"/></g></svg>
+      </span>
+      <div><strong>ccgs</strong><span>Claude Code, any gateway, one command.</span></div>
+    </div>
+    <nav aria-label="Footer">
+      <a href="https://github.com/antoinefradin/claude-code-gateway-easy-switch">Source</a>
+      <a href="https://github.com/antoinefradin/claude-code-gateway-easy-switch#readme">Docs</a>
+      <a href="https://github.com/antoinefradin/claude-code-gateway-easy-switch/blob/main/docs/LITELLM.md">LiteLLM</a>
+      <a href="https://github.com/antoinefradin/claude-code-gateway-easy-switch/blob/main/docs/MCP.md">MCP</a>
+      <a href="https://github.com/antoinefradin/claude-code-gateway-easy-switch/blob/main/LICENSE">MIT</a>
+    </nav>
+    <p>Built by <a href="https://github.com/antoinefradin">antoinefradin</a></p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
