@@ -399,6 +399,10 @@ cd claude-code-gateway-easy-switch
 bash tests/e2e.sh
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the branching, commit, and PR rules,
+and [docs/RELEASE.md](docs/RELEASE.md) for how versioning and automated releases
+work.
+
 ---
 
 ## License
