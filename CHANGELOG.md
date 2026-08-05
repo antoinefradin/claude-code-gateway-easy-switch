@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented here.
 
+## [0.3.0] — 2026-08-05
+
+### Added
+
+- restyle brand as Micro 5 wordmark
+- add landing page with GitHub Pages deploy
+- add interactive default-model picker
+- add --base-url and --token flags to ccgs add
+
+### Fixed
+
+- send tput cursor sequences to stderr
+- make the arrow-key picker actually activate
+- give actionable guidance when no proxy is active
+
+### Changed
+
+Merge pull request #4 from antoinefradin/feat/website
+- remove GitHub Pages deploy workflow
+- add ccgs Claude Code skill
+- document versioning and release workflow
+- add automated release pipeline
+Merge pull request #3 from antoinefradin/docs/mcp-gateway-guide
+- add MCP & claude.ai connectors guide
+Merge pull request #2 from antoinefradin/fix/select-cursor-stdout
+- update README title and tagline for repo rename
+- rename repo references to claude-code-gateway-easy-switch
+Merge pull request #1 from antoinefradin/feat/models-set-picker
+- explain config-to-settings.json variable mapping for models set
+- use bare 'ccgs --session' instead of eval wrapper
+- add /status verification examples for native and proxy modes
+- add shell override troubleshooting guide
+- add SHELL_ENV guide for shell-injected env vars
+- rename ccgs to ccgs.sh
+- update proxy examples and differentiate output code blocks
+- update CCGS_PROXY_LITELLM_URL examples to company proxy
+- replace localhost:4000 with company proxy URL in docs/
+- update examples to reflect real-world settings.json
+- add banner and screenshots folder structure
+- add banner image
+- add CONTRIBUTING.md and README example output
+Replace YOUR_USERNAME placeholder with antoinefradin
+Initial release: ccgs v0.1.0 — Claude Code Gateway Switch
+
 ## [0.2.0] — 2026-07-08
 
 ### Added
