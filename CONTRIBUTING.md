@@ -62,7 +62,30 @@ review. The rules below are prescriptive.
 - Use `git push --force-with-lease`, never plain `--force`.
 - Do not rebase while a review is in progress.
 
-## 6. CI
+## 6. Versioning & releases
+
+Releases are **automated** — you never bump the version by hand.
+
+- Merging a PR into `main` triggers `.github/workflows/release.yml`, which runs
+  `./release.sh --auto --ci`. It reads the commits since the last `vX.Y.Z` tag and
+  cuts a new release.
+- **Your commit types decide the version** ([SemVer](https://semver.org/)):
+  - any `feat` commit → **minor** bump (`0.2.0` → `0.3.0`)
+  - `fix` / other types → **patch** bump (`0.2.0` → `0.2.1`)
+  - `!` or a `BREAKING CHANGE:` footer → **major** bump (`0.2.0` → `1.0.0`)
+  - So write accurate types — they are the version, not just changelog fodder.
+- **Website / docs / assets / workflow-only changes do not cut a CLI release.**
+  A PR touching only `website/`, `docs/`, `assets/`, or `.github/` is skipped
+  (the site publishes via the Pages workflow instead).
+- **Do not hand-edit** `CCGS_VERSION` in `ccgs.sh`, the README version badge, or
+  add `## [x.y.z]` headings to `CHANGELOG.md` — CI writes all three and pushes a
+  `chore(release): vX.Y.Z [skip ci]` commit plus the tag. Changelog notes are
+  generated from your commit subjects, which is another reason to keep them clear.
+- Merge-commit-only merging (§5) is required for this to work: your branch's
+  `feat:` / `fix:` commits stay in `main`'s history so the release scan can see
+  them.
+
+## 7. CI
 
 The following must pass on every PR:
 
