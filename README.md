@@ -11,6 +11,14 @@
 ![Bash](https://img.shields.io/badge/bash-3.2%2B-orange)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
 
+**🌐 Website: [antoinefradin.github.io/claude-code-gateway-easy-switch](https://antoinefradin.github.io/claude-code-gateway-easy-switch/)**
+
+<p align="center">
+  <a href="https://antoinefradin.github.io/claude-code-gateway-easy-switch/">
+    <img src="assets/screenshots/landing.png" alt="ccgs landing page" width="800"/>
+  </a>
+</p>
+
 ---
 
 ## Why
