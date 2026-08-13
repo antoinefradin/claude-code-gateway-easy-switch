@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented here.
 
+## [0.4.0] — 2026-08-13
+
+### Added
+
+- add ASCII banner to help output
+
+### Changed
+
+Merge pull request #7 from antoinefradin/feat/cli-banner
+Merge pull request #6 from antoinefradin/feat/website
+- add website link and landing page screenshot
+
 ## [0.3.1] — 2026-08-05
 
 ### Fixed

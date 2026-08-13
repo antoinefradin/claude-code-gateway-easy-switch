@@ -8,7 +8,7 @@ set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-readonly CCGS_VERSION="0.3.1"
+readonly CCGS_VERSION="0.4.0"
 readonly CCGS_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/ccgs"
 readonly CCGS_CONFIG_FILE="$CCGS_CONFIG_DIR/config"
 # Allow CLAUDE_SETTINGS env var to override the settings.json path (useful for testing)
