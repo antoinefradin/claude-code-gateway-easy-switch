@@ -92,6 +92,16 @@ check_output "T01: help shows USAGE"   "USAGE"   ccgs help
 # T2: version format
 check_output "T02: version format"     "ccgs [0-9]"  ccgs version
 
+# T2a: bare `ccgs` (no args) shows the ASCII banner (block glyphs print even
+# with colour off under capture)
+check_output "T02a: bare ccgs shows banner" "██████" ccgs
+
+# T2b: bare `ccgs` still shows the full help below the banner
+check_output "T02b: bare ccgs shows USAGE"  "USAGE"  ccgs
+
+# T2c: explicit `ccgs help` also shows the banner
+check_output "T02c: ccgs help shows banner" "██████" ccgs help
+
 # T3: status shows native by default
 check_output "T03: status shows native" "native"  ccgs status
 
