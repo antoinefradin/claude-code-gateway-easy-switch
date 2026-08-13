@@ -19,8 +19,12 @@ readonly CLAUDE_SETTINGS_FILE="${CLAUDE_SETTINGS:-$HOME/.claude/settings.json}"
 if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
   RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
   BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; RESET='\033[0m'
+  # Banner gradient — light → dark blue, one shade per letter (truecolor).
+  BLUE1='\033[38;2;96;165;250m'; BLUE2='\033[38;2;59;130;246m'
+  BLUE3='\033[38;2;37;99;235m';  BLUE4='\033[38;2;29;78;216m'
 else
   RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; BOLD=''; RESET=''
+  BLUE1=''; BLUE2=''; BLUE3=''; BLUE4=''
 fi
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
@@ -819,23 +823,38 @@ cmd_version() {
     printf 'ccgs %s\n' "$CCGS_VERSION"
 }
 
+cmd_banner() {
+    # ANSI-Shadow "CCGS", each letter tinted with its own blue gradient shade.
+    # Printed with printf so the \033 escapes render; colour vars blank out
+    # under NO_COLOR / non-TTY, leaving plain block-art.
+    printf "${BLUE1} ██████╗${BLUE2} ██████╗${BLUE3} ██████╗${BLUE4} ███████╗${RESET}\n"
+    printf "${BLUE1}██╔════╝${BLUE2}██╔════╝${BLUE3}██╔════╝${BLUE4} ██╔════╝${RESET}\n"
+    printf "${BLUE1}██║     ${BLUE2}██║     ${BLUE3}██║  ███╗${BLUE4}███████╗${RESET}\n"
+    printf "${BLUE1}██║     ${BLUE2}██║     ${BLUE3}██║   ██║${BLUE4}╚════██║${RESET}\n"
+    printf "${BLUE1}╚██████╗${BLUE2}╚██████╗${BLUE3}╚██████╔╝${BLUE4}███████║${RESET}\n"
+    printf "${BLUE1} ╚═════╝${BLUE2} ╚═════╝${BLUE3} ╚═════╝${BLUE4} ╚══════╝${RESET}\n"
+}
+
 cmd_help() {
-    printf "${BOLD}${CYAN}ccgs${RESET} — Claude Code Gateway Switch v%s\n\n" "$CCGS_VERSION"
+    printf '\n'
+    cmd_banner
+    printf '\n'
+    printf "${BOLD}${BLUE4}ccgs — Claude Code Gateway Switch v%s${RESET}\n\n" "$CCGS_VERSION"
     printf "${BOLD}USAGE${RESET}\n"
     printf "  ccgs <command> [options]\n\n"
     printf "${BOLD}COMMANDS${RESET}\n"
-    printf "  ${GREEN}native${RESET}                   Switch to native Anthropic API (Pro subscription)\n"
-    printf "  ${GREEN}proxy${RESET} <name>             Switch to a named proxy (writes settings.json)\n"
-    printf "  ${GREEN}models list${RESET} [name]       List models from current or named proxy\n"
-    printf "  ${GREEN}models set${RESET} [name]        Pick a default model interactively (arrow keys)\n"
-    printf "  ${GREEN}add${RESET} <name> <url> [key]                    Add or update a proxy configuration\n"
-    printf "  ${GREEN}add${RESET} <name> --base-url <url> [--token <key>]  (named-flag form)\n"
-    printf "  ${GREEN}remove${RESET} <name>            Remove a proxy configuration\n"
-    printf "  ${GREEN}list${RESET}                     List all configured proxies\n"
-    printf "  ${GREEN}status${RESET}                   Show current mode and settings.json state\n"
-    printf "  ${GREEN}config${RESET}                   Open config file in \$EDITOR\n"
-    printf "  ${GREEN}help${RESET}                     Show this help\n"
-    printf "  ${GREEN}version${RESET}                  Show version\n\n"
+    printf "  ${CYAN}native${RESET}                   Switch to native Anthropic API (Pro subscription)\n"
+    printf "  ${CYAN}proxy${RESET} <name>             Switch to a named proxy (writes settings.json)\n"
+    printf "  ${CYAN}models list${RESET} [name]       List models from current or named proxy\n"
+    printf "  ${CYAN}models set${RESET} [name]        Pick a default model interactively (arrow keys)\n"
+    printf "  ${CYAN}add${RESET} <name> <url> [key]                    Add or update a proxy configuration\n"
+    printf "  ${CYAN}add${RESET} <name> --base-url <url> [--token <key>]  (named-flag form)\n"
+    printf "  ${CYAN}remove${RESET} <name>            Remove a proxy configuration\n"
+    printf "  ${CYAN}list${RESET}                     List all configured proxies\n"
+    printf "  ${CYAN}status${RESET}                   Show current mode and settings.json state\n"
+    printf "  ${CYAN}config${RESET}                   Open config file in \$EDITOR\n"
+    printf "  ${CYAN}help${RESET}                     Show this help\n"
+    printf "  ${CYAN}version${RESET}                  Show version\n\n"
     printf "${BOLD}GLOBAL FLAGS${RESET}\n"
     printf "  --session    Export env vars into current shell (requires shell function or eval)\n\n"
     printf "${BOLD}EXAMPLES${RESET}\n"
@@ -962,6 +981,8 @@ PYEOF
 # ─── Main Dispatcher ──────────────────────────────────────────────────────────
 
 main() {
+    # Bare `ccgs` defaults to help; the banner lives in cmd_help so it shows for
+    # both bare `ccgs` and explicit `ccgs help` / `-h`.
     local cmd="${1:-help}"
     shift || true
 
